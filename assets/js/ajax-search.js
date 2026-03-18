@@ -19,11 +19,15 @@
     const MAX_SEARCH_LENGTH = 100;
     const MOBILE_BREAKPOINT = 768;
     const SWIPE_THRESHOLD = 50;
+    // IMPORTANT: No global (g) flag — using g with test() causes lastIndex
+    // to advance, making every second call return false (a known JS bug pattern).
     const DANGEROUS_PATTERNS = [
-        /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi,
-        /<[^>]+>/g,
-        /javascript:/gi,
-        /on\w+\s*=/gi,
+        /<script\b/i,
+        /javascript\s*:/i,
+        /on\w+\s*=/i,
+        /data\s*:\s*text\/html/i,
+        /vbscript\s*:/i,
+        /expression\s*\(/i,
     ];
 
     // ==========================================
@@ -76,37 +80,52 @@
     }
 
     /**
-     * Sanitize search input
+     * Escape HTML entities to prevent XSS when inserting into DOM
      */
-    function sanitizeSearchInput(input) {
-        if (typeof input !== 'string') {
-            return false;
-        }
-        
-        let sanitized = input.trim().replace(/\s+/g, ' ');
-        
-        if (sanitized.length > MAX_SEARCH_LENGTH) {
-            sanitized = sanitized.substring(0, MAX_SEARCH_LENGTH);
-        }
-        
-        for (const pattern of DANGEROUS_PATTERNS) {
-            if (pattern.test(sanitized)) {
-                console.warn('WCAS: Potentially dangerous input detected');
-                return false;
-            }
-        }
-        
-        sanitized = sanitized.replace(/<[^>]*>/g, '');
-        
-        sanitized = sanitized
+    function escapeHtml(str) {
+        if (typeof str !== 'string') return '';
+        return str
             .replace(/&/g, '&amp;')
             .replace(/</g, '&lt;')
             .replace(/>/g, '&gt;')
             .replace(/"/g, '&quot;')
             .replace(/'/g, '&#x27;');
-        
+    }
+
+    /**
+     * Sanitize search input — validates and cleans user input before
+     * sending to the server. The server does its own sanitization too
+     * (defense-in-depth), but this catches obvious attacks early and
+     * provides a better UX (no round-trip for clearly invalid input).
+     */
+    function sanitizeSearchInput(input) {
+        if (typeof input !== 'string') {
+            return false;
+        }
+
+        // Strip control characters (keeps printable + whitespace)
+        let sanitized = input.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '');
+
+        sanitized = sanitized.trim().replace(/\s+/g, ' ');
+
+        if (sanitized.length > MAX_SEARCH_LENGTH) {
+            sanitized = sanitized.substring(0, MAX_SEARCH_LENGTH);
+        }
+
+        // Check for dangerous patterns
+        for (const pattern of DANGEROUS_PATTERNS) {
+            if (pattern.test(sanitized)) {
+                return false;
+            }
+        }
+
+        // Strip all HTML tags
+        sanitized = sanitized.replace(/<[^>]*>/g, '');
+
+        // Decode any HTML entities back to plain text (so the server
+        // receives the actual search term, not encoded entities)
         sanitized = $('<textarea/>').html(sanitized).text();
-        
+
         return sanitized;
     }
 
@@ -227,16 +246,27 @@
         getAll() {
             try {
                 const data = localStorage.getItem(this.storageKey);
-                return data ? JSON.parse(data) : [];
+                if (!data) return [];
+                const parsed = JSON.parse(data);
+                // Validate: must be array of strings, sanitize each
+                if (!Array.isArray(parsed)) return [];
+                return parsed
+                    .filter(s => typeof s === 'string' && s.length > 0 && s.length <= MAX_SEARCH_LENGTH)
+                    .map(s => s.replace(/<[^>]*>/g, '').trim())
+                    .filter(Boolean)
+                    .slice(0, this.maxItems);
             } catch (e) {
+                // Corrupted data — clear it
+                this.clear();
                 return [];
             }
         }
 
         add(term) {
             if (!term || typeof term !== 'string') return;
-            term = term.trim();
-            if (term.length < 2) return;
+            // Strip tags before storing (defense against poisoned data)
+            term = term.replace(/<[^>]*>/g, '').trim();
+            if (term.length < 2 || term.length > MAX_SEARCH_LENGTH) return;
 
             let searches = this.getAll();
             // Remove duplicate if exists
