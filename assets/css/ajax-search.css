@@ -318,8 +318,9 @@
 }
 
 .wcas-term-item a:hover,
-.wcas-term-item a:active {
-    background-color: var(--wcas-bg-hover);
+.wcas-term-item a:active,
+.wcas-term-item.selected a {
+    background-color: var(--wcas-bg-selected);
 }
 
 .wcas-term-name {
@@ -705,8 +706,9 @@
 }
 
 .wcas-see-all a:hover,
-.wcas-see-all a:active {
-    background-color: var(--wcas-bg-hover);
+.wcas-see-all a:active,
+.wcas-see-all.selected a {
+    background-color: var(--wcas-bg-selected);
 }
 
 .wcas-see-all a::after {
@@ -779,8 +781,9 @@
     -webkit-tap-highlight-color: transparent;
 }
 
-.wcas-history-item:hover {
-    background-color: var(--wcas-bg-hover);
+.wcas-history-item:hover,
+.wcas-history-item.selected {
+    background-color: var(--wcas-bg-selected);
 }
 
 .wcas-history-icon {

@@ -1007,6 +1007,7 @@
 
             this.$resultsList.empty();
             this.showingHistory = true;
+            this.selectedIndex = -1;
             this.resetPreview();
 
             const i18n = wcasConfig.i18n;
@@ -1078,61 +1079,118 @@
             this.showResults();
         }
 
+        /**
+         * Get all navigable items in the results list.
+         * Includes: history items, taxonomy term items, product items, and "see all" link.
+         */
+        getNavigableItems() {
+            return this.$resultsList.find('.wcas-history-item, .wcas-term-item, .wcas-product-item, .wcas-see-all');
+        }
+
         handleKeyboard(e) {
             if (!this.$resultsWrapper.hasClass('active')) return;
 
-            const $items = this.$resultsList.find('.wcas-product-item');
+            const $items = this.getNavigableItems();
             const itemCount = $items.length;
+            if (itemCount === 0) return;
 
             switch (e.key) {
                 case 'ArrowDown':
                     e.preventDefault();
                     this.selectedIndex = Math.min(this.selectedIndex + 1, itemCount - 1);
                     this.updateSelection();
-                    if (this.products[this.selectedIndex]) {
-                        this.showPreview(this.products[this.selectedIndex]);
-                    }
+                    this.onSelectionChanged($items);
                     break;
 
                 case 'ArrowUp':
                     e.preventDefault();
-                    this.selectedIndex = Math.max(this.selectedIndex - 1, 0);
+                    // Allow going back to -1 (deselect all, focus stays on input)
+                    this.selectedIndex = Math.max(this.selectedIndex - 1, -1);
                     this.updateSelection();
-                    if (this.products[this.selectedIndex]) {
-                        this.showPreview(this.products[this.selectedIndex]);
-                    }
+                    this.onSelectionChanged($items);
                     break;
 
                 case 'Enter':
                     e.preventDefault();
-                    if (this.selectedIndex >= 0 && this.products[this.selectedIndex]) {
-                        window.location.href = this.products[this.selectedIndex].url;
-                    } else {
-                        const $seeAll = this.$resultsList.find('.wcas-see-all a');
-                        if ($seeAll.length) {
-                            window.location.href = $seeAll.attr('href');
-                        }
-                    }
+                    this.activateSelectedItem($items);
                     break;
             }
         }
 
+        /**
+         * Handle side effects when selection changes (e.g. show preview for products)
+         */
+        onSelectionChanged($items) {
+            if (this.selectedIndex < 0) return;
+
+            const $selected = $items.eq(this.selectedIndex);
+
+            // If it's a product item, show preview
+            if ($selected.hasClass('wcas-product-item')) {
+                const productIndex = $selected.data('index');
+                if (this.products[productIndex]) {
+                    this.showPreview(this.products[productIndex]);
+                }
+            }
+        }
+
+        /**
+         * Activate (click/navigate to) the currently selected item
+         */
+        activateSelectedItem($items) {
+            if (this.selectedIndex >= 0 && this.selectedIndex < $items.length) {
+                const $selected = $items.eq(this.selectedIndex);
+
+                // History item — fill input and search
+                if ($selected.hasClass('wcas-history-item')) {
+                    const term = $selected.find('.wcas-history-term').text();
+                    this.$input.val(term);
+                    this.showingHistory = false;
+                    this.$clear.addClass('active');
+                    this.$spinner.addClass('active');
+                    this.performSearch(term);
+                    return;
+                }
+
+                // See-all link
+                if ($selected.hasClass('wcas-see-all')) {
+                    const href = $selected.find('a').attr('href');
+                    if (href) {
+                        window.location.href = href;
+                    }
+                    return;
+                }
+
+                // Product or term item — follow the link
+                const $link = $selected.find('a');
+                if ($link.length && $link.attr('href')) {
+                    window.location.href = $link.attr('href');
+                }
+            } else {
+                // No selection — go to "See all results" if available
+                const $seeAll = this.$resultsList.find('.wcas-see-all a');
+                if ($seeAll.length) {
+                    window.location.href = $seeAll.attr('href');
+                }
+            }
+        }
+
         updateSelection() {
-            const $items = this.$resultsList.find('.wcas-product-item');
+            const $items = this.getNavigableItems();
             $items.removeClass('selected');
-            
-            if (this.selectedIndex >= 0) {
+
+            if (this.selectedIndex >= 0 && this.selectedIndex < $items.length) {
                 const $selected = $items.eq(this.selectedIndex);
                 $selected.addClass('selected');
-                
+
                 // Scroll into view
                 const container = this.$resultsList[0];
                 const item = $selected[0];
-                
+
                 if (container && item) {
                     const containerRect = container.getBoundingClientRect();
                     const itemRect = item.getBoundingClientRect();
-                    
+
                     if (itemRect.bottom > containerRect.bottom) {
                         container.scrollTop += itemRect.bottom - containerRect.bottom + 10;
                     } else if (itemRect.top < containerRect.top) {
