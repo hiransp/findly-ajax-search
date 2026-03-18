@@ -1,0 +1,14 @@
+# Files to exclude from the WordPress.org release zip
+.git
+.gitignore
+.distignore
+CLAUDE.md
+README.md
+node_modules
+tests
+phpunit.xml
+phpcs.xml
+.editorconfig
+.eslintrc
+.stylelintrc
+*.zip
