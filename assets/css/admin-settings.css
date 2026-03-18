@@ -1,0 +1,65 @@
+/**
+ * WC Custom AJAX Search - Admin Settings Styles
+ */
+
+.wcas-settings-wrap {
+    max-width: 800px;
+}
+
+.wcas-settings-wrap h2 {
+    margin-top: 30px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #ccd0d4;
+}
+
+.wcas-settings-wrap .form-table th {
+    width: 200px;
+    padding: 15px 10px 15px 0;
+}
+
+.wcas-settings-wrap .form-table td {
+    padding: 10px;
+}
+
+.wcas-settings-wrap .form-table label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.wcas-field-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.wcas-sub-field {
+    margin-left: 24px;
+    padding: 10px 15px;
+    background: #f9f9f9;
+    border-left: 3px solid #0073aa;
+    border-radius: 0 4px 4px 0;
+}
+
+.wcas-sub-field input.regular-text {
+    width: 100%;
+    max-width: 400px;
+}
+
+.wcas-sub-field .description {
+    margin-top: 5px;
+    display: block;
+}
+
+.wcas-hidden {
+    display: none !important;
+}
+
+.wcas-settings-wrap .description {
+    color: #666;
+    font-style: italic;
+}
+
+.wcas-settings-wrap input[type="number"].small-text {
+    width: 80px;
+}
