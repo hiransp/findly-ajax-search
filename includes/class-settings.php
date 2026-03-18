@@ -182,7 +182,7 @@ class WCAS_Settings {
     }
 
     /**
-     * Enqueue admin CSS on our settings page only
+     * Enqueue admin assets on our settings page only
      */
     public function enqueue_admin_assets($hook) {
         if ($hook !== 'woocommerce_page_wcas-settings') {
@@ -194,6 +194,20 @@ class WCAS_Settings {
             array(),
             WCAS_VERSION
         );
+
+        // Register a dummy script handle so we can attach inline JS (CSP-safe)
+        wp_register_script('wcas-admin-js', false, array(), WCAS_VERSION, true);
+        wp_enqueue_script('wcas-admin-js');
+        wp_add_inline_script('wcas-admin-js', "
+            document.querySelectorAll('.wcas-toggle-parent').forEach(function(cb) {
+                cb.addEventListener('change', function() {
+                    var target = document.getElementById(this.dataset.target);
+                    if (target) {
+                        target.classList.toggle('wcas-hidden', !this.checked);
+                    }
+                });
+            });
+        ");
     }
 
     // =========================================
@@ -297,19 +311,6 @@ class WCAS_Settings {
                 ?>
             </form>
         </div>
-
-        <script>
-        (function() {
-            document.querySelectorAll('.wcas-toggle-parent').forEach(function(cb) {
-                cb.addEventListener('change', function() {
-                    var target = document.getElementById(this.dataset.target);
-                    if (target) {
-                        target.classList.toggle('wcas-hidden', !this.checked);
-                    }
-                });
-            });
-        })();
-        </script>
         <?php
     }
 }
