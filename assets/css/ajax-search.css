@@ -34,28 +34,28 @@
     --wcas-shadow: rgba(0, 0, 0, 0.15);
     --wcas-shadow-heavy: rgba(0, 0, 0, 0.25);
     --wcas-overlay: rgba(0, 0, 0, 0.5);
-    
+
     /* Spacing */
     --wcas-spacing-xs: 5px;
     --wcas-spacing-sm: 10px;
     --wcas-spacing-md: 15px;
     --wcas-spacing-lg: 20px;
     --wcas-spacing-xl: 30px;
-    
+
     /* Border Radius */
     --wcas-radius-sm: 4px;
     --wcas-radius-md: 8px;
     --wcas-radius-lg: 12px;
     --wcas-radius-full: 50px;
-    
+
     /* Transitions */
     --wcas-transition-fast: 0.15s ease;
     --wcas-transition-normal: 0.2s ease;
     --wcas-transition-slow: 0.3s ease;
-    
+
     /* Touch targets (minimum 44px for accessibility) */
     --wcas-touch-target: 44px;
-    
+
     /* Z-index layers */
     --wcas-z-dropdown: 9999;
     --wcas-z-overlay: 99999;
@@ -63,7 +63,7 @@
 }
 
 /* Dark mode support */
-@media (prefers-color-scheme: dark) {
+/* @media (prefers-color-scheme: dark) {
     :root {
         --wcas-text: #e0e0e0;
         --wcas-text-light: #b0b0b0;
@@ -75,7 +75,7 @@
         --wcas-border: #444;
         --wcas-border-light: #333;
     }
-}
+} */
 
 /* ============================================
    Base Wrapper
@@ -107,8 +107,8 @@
     border: 1px solid var(--wcas-border);
     border-radius: var(--wcas-radius-md);
     padding: 0 var(--wcas-spacing-md);
-    transition: border-color var(--wcas-transition-normal), 
-                box-shadow var(--wcas-transition-normal);
+    transition: border-color var(--wcas-transition-normal),
+        box-shadow var(--wcas-transition-normal);
     min-height: var(--wcas-touch-target);
 }
 
@@ -137,7 +137,8 @@
     border: none;
     outline: none;
     padding: 12px var(--wcas-spacing-sm);
-    font-size: 16px; /* Prevents zoom on iOS */
+    font-size: 16px;
+    /* Prevents zoom on iOS */
     background: transparent;
     width: 100%;
     color: var(--wcas-text);
@@ -191,8 +192,13 @@
 }
 
 @keyframes wcas-spin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 /* Reduced motion preference */
@@ -200,7 +206,7 @@
     .wcas-spinner svg {
         animation: none;
     }
-    
+
     .wcas-wrapper * {
         transition-duration: 0.01ms !important;
         animation-duration: 0.01ms !important;
@@ -226,7 +232,7 @@
     transform: translateY(-10px);
     opacity: 0;
     transition: transform var(--wcas-transition-slow),
-                opacity var(--wcas-transition-slow);
+        opacity var(--wcas-transition-slow);
 }
 
 .wcas-results-wrapper.active {
@@ -468,8 +474,15 @@
 }
 
 @keyframes wcas-fade-in {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .wcas-preview-image {
@@ -619,7 +632,7 @@
     text-align: center;
     text-decoration: none;
     transition: background-color var(--wcas-transition-normal),
-                transform var(--wcas-transition-fast);
+        transform var(--wcas-transition-fast);
     -webkit-tap-highlight-color: transparent;
     min-height: var(--wcas-touch-target);
     display: flex;
@@ -710,7 +723,7 @@
    No Results / Rate Limited States
    ============================================ */
 .wcas-no-results {
-    padding: var(--wcas-spacing-xl) var(--wcas-spacing-lg);
+    padding: var(--wcas-spacing-lg) var(--wcas-spacing-lg);
     text-align: center;
     color: var(--wcas-text-light);
 }
@@ -732,9 +745,99 @@
 }
 
 /* ============================================
+   Search History
+   ============================================ */
+.wcas-history-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.wcas-history-clear {
+    background: none;
+    border: none;
+    color: var(--wcas-primary);
+    font-size: 11px;
+    cursor: pointer;
+    padding: 2px 6px;
+    border-radius: var(--wcas-radius-sm);
+    transition: background-color var(--wcas-transition-fast);
+}
+
+.wcas-history-clear:hover {
+    background-color: var(--wcas-bg-hover);
+}
+
+.wcas-history-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: var(--wcas-spacing-sm) var(--wcas-spacing-md);
+    min-height: var(--wcas-touch-target);
+    transition: background-color var(--wcas-transition-fast);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.wcas-history-item:hover {
+    background-color: var(--wcas-bg-hover);
+}
+
+.wcas-history-icon {
+    color: var(--wcas-text-muted);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+}
+
+.wcas-history-term {
+    flex: 1;
+    color: var(--wcas-text);
+    font-size: 14px;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.wcas-history-remove {
+    background: none;
+    border: none;
+    color: var(--wcas-text-muted);
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
+    transition: background-color var(--wcas-transition-fast), color var(--wcas-transition-fast);
+    -webkit-tap-highlight-color: transparent;
+}
+
+.wcas-history-remove:hover {
+    background-color: var(--wcas-bg-hover);
+    color: var(--wcas-error);
+}
+
+/* ============================================
+   No Results Suggestions
+   ============================================ */
+.wcas-section-suggestions {
+    border-top: 1px solid var(--wcas-border-light);
+}
+
+.wcas-suggestion-item a {
+    min-height: 60px;
+}
+
+/* ============================================
    Mobile Full-Screen Overlay
    ============================================ */
 @media (max-width: 768px) {
+
     /* Mobile overlay mode */
     .wcas-wrapper.wcas-mobile-active {
         position: fixed;
@@ -753,7 +856,7 @@
         display: flex;
         flex-direction: column;
     }
-    
+
     /* Mobile header with search */
     .wcas-mobile-active .wcas-search-box {
         border-radius: 0;
@@ -763,7 +866,7 @@
         padding: var(--wcas-spacing-sm) var(--wcas-spacing-md);
         flex-shrink: 0;
     }
-    
+
     /* Mobile back button */
     .wcas-mobile-back {
         display: none;
@@ -777,11 +880,11 @@
         flex-shrink: 0;
         -webkit-tap-highlight-color: transparent;
     }
-    
+
     .wcas-mobile-active .wcas-mobile-back {
         display: flex;
     }
-    
+
     /* Results in mobile overlay */
     .wcas-mobile-active .wcas-results-wrapper {
         position: relative;
@@ -798,17 +901,17 @@
         transform: none;
         opacity: 1;
     }
-    
+
     .wcas-mobile-active .wcas-results-wrapper.active {
         display: flex;
     }
-    
+
     .wcas-mobile-active .wcas-results-container {
         flex-direction: column;
         flex: 1;
         max-height: none;
     }
-    
+
     .wcas-mobile-active .wcas-results-list {
         flex: 1;
         min-width: auto;
@@ -816,12 +919,12 @@
         border-bottom: none;
         max-height: none;
     }
-    
+
     /* Hide preview panel on mobile by default */
     .wcas-mobile-active .wcas-preview-panel {
         display: none;
     }
-    
+
     /* Mobile product preview modal */
     .wcas-mobile-active .wcas-preview-panel.wcas-preview-visible {
         display: flex;
@@ -837,12 +940,17 @@
         animation: wcas-slide-up var(--wcas-transition-slow);
         padding-bottom: env(safe-area-inset-bottom);
     }
-    
+
     @keyframes wcas-slide-up {
-        from { transform: translateY(100%); }
-        to { transform: translateY(0); }
+        from {
+            transform: translateY(100%);
+        }
+
+        to {
+            transform: translateY(0);
+        }
     }
-    
+
     /* Mobile preview header with close */
     .wcas-preview-mobile-header {
         display: none;
@@ -855,11 +963,11 @@
         background: var(--wcas-bg-secondary);
         z-index: 1;
     }
-    
+
     .wcas-mobile-active .wcas-preview-mobile-header {
         display: flex;
     }
-    
+
     .wcas-preview-mobile-header .wcas-preview-close {
         width: var(--wcas-touch-target);
         height: var(--wcas-touch-target);
@@ -872,7 +980,7 @@
         background: var(--wcas-bg-hover);
         -webkit-tap-highlight-color: transparent;
     }
-    
+
     .wcas-preview-drag-handle {
         width: 40px;
         height: 4px;
@@ -880,7 +988,7 @@
         border-radius: 2px;
         margin: 0 auto var(--wcas-spacing-sm);
     }
-    
+
     /* Show expand button on mobile product items */
     .wcas-mobile-active .wcas-product-expand {
         display: flex;
@@ -891,44 +999,44 @@
         color: var(--wcas-text-muted);
         flex-shrink: 0;
     }
-    
+
     /* Larger touch targets for mobile */
     .wcas-mobile-active .wcas-product-item a {
         padding: var(--wcas-spacing-md);
     }
-    
+
     .wcas-mobile-active .wcas-term-item a {
         padding: var(--wcas-spacing-md);
     }
-    
+
     /* Mobile quantity controls - larger */
     .wcas-mobile-active .wcas-qty-btn {
         width: 48px;
         height: 48px;
         font-size: 20px;
     }
-    
+
     .wcas-mobile-active .wcas-qty-input {
         width: 60px;
         height: 48px;
         font-size: 18px;
     }
-    
+
     .wcas-mobile-active .wcas-add-to-cart,
     .wcas-mobile-active .wcas-view-product {
         min-height: 48px;
         font-size: 16px;
     }
-    
+
     /* Mobile preview content adjustments */
     .wcas-mobile-active .wcas-preview-content {
         padding: var(--wcas-spacing-md);
     }
-    
+
     .wcas-mobile-active .wcas-preview-image img {
         max-height: 150px;
     }
-    
+
     /* Body scroll lock when overlay is active */
     body.wcas-overlay-active {
         overflow: hidden;
@@ -944,11 +1052,11 @@
     .wcas-results-container {
         max-height: 450px;
     }
-    
+
     .wcas-preview-panel {
         width: 280px;
     }
-    
+
     .wcas-results-list {
         min-width: 250px;
     }
@@ -962,24 +1070,24 @@
         width: 48px;
         height: 48px;
     }
-    
+
     .wcas-mobile-active .wcas-product-info {
         font-size: 14px;
     }
-    
+
     .wcas-mobile-active .wcas-product-desc {
         display: none;
     }
-    
+
     .wcas-mobile-active .wcas-preview-cart {
         flex-direction: column;
     }
-    
+
     .wcas-mobile-active .wcas-qty-wrapper {
         width: 100%;
         justify-content: center;
     }
-    
+
     .wcas-mobile-active .wcas-add-to-cart,
     .wcas-mobile-active .wcas-view-product {
         width: 100%;
@@ -994,12 +1102,12 @@
         max-height: 80vh;
         flex-direction: row;
     }
-    
+
     .wcas-mobile-active .wcas-preview-image {
         flex-shrink: 0;
         width: 40%;
     }
-    
+
     .wcas-mobile-active .wcas-preview-details {
         flex: 1;
         overflow-y: auto;
@@ -1024,11 +1132,11 @@
         --wcas-text: #000;
         --wcas-bg: #fff;
     }
-    
+
     .wcas-search-box:focus-within {
         box-shadow: 0 0 0 3px #000;
     }
-    
+
     .wcas-product-item.selected a,
     .wcas-product-item:hover a {
         outline: 2px solid #000;

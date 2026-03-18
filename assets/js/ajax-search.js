@@ -216,6 +216,63 @@
     }
 
     // ==========================================
+    // Search History Manager
+    // ==========================================
+    class SearchHistory {
+        constructor(maxItems) {
+            this.storageKey = 'wcas_recent_searches';
+            this.maxItems = maxItems || 5;
+        }
+
+        getAll() {
+            try {
+                const data = localStorage.getItem(this.storageKey);
+                return data ? JSON.parse(data) : [];
+            } catch (e) {
+                return [];
+            }
+        }
+
+        add(term) {
+            if (!term || typeof term !== 'string') return;
+            term = term.trim();
+            if (term.length < 2) return;
+
+            let searches = this.getAll();
+            // Remove duplicate if exists
+            searches = searches.filter(s => s.toLowerCase() !== term.toLowerCase());
+            // Add to front
+            searches.unshift(term);
+            // Trim to max
+            searches = searches.slice(0, this.maxItems);
+
+            try {
+                localStorage.setItem(this.storageKey, JSON.stringify(searches));
+            } catch (e) {
+                // localStorage full or unavailable
+            }
+        }
+
+        remove(term) {
+            let searches = this.getAll();
+            searches = searches.filter(s => s.toLowerCase() !== term.toLowerCase());
+            try {
+                localStorage.setItem(this.storageKey, JSON.stringify(searches));
+            } catch (e) {
+                // ignore
+            }
+        }
+
+        clear() {
+            try {
+                localStorage.removeItem(this.storageKey);
+            } catch (e) {
+                // ignore
+            }
+        }
+    }
+
+    // ==========================================
     // Main Search Class
     // ==========================================
     class WCASSearch {
@@ -228,7 +285,7 @@
             this.$previewPanel = $wrapper.find('.wcas-preview-panel');
             this.$spinner = $wrapper.find('.wcas-spinner');
             this.$clear = $wrapper.find('.wcas-clear');
-            
+
             this.currentRequest = null;
             this.selectedIndex = -1;
             this.products = [];
@@ -237,7 +294,13 @@
             this.isMobileMode = false;
             this.previewGesture = null;
             this.originalScrollPosition = 0;
-            
+            this.showingHistory = false;
+
+            // Search history
+            this.history = wcasConfig.enableSearchHistory
+                ? new SearchHistory(wcasConfig.maxRecentSearches || 5)
+                : null;
+
             this.init();
         }
 
@@ -293,14 +356,17 @@
                 }, 0);
             });
 
-            // Focus events - activate mobile mode
+            // Focus events - activate mobile mode and show history
             this.$input.on('focus', () => {
                 if (isMobile()) {
                     this.activateMobileMode();
                 }
-                
-                if (this.$input.val().trim().length >= wcasConfig.minChars && this.$resultsList.children().length > 0) {
+
+                const val = this.$input.val().trim();
+                if (val.length >= wcasConfig.minChars && this.$resultsList.children().length > 0 && !this.showingHistory) {
                     this.showResults();
+                } else if (val.length === 0 && this.history) {
+                    this.showSearchHistory();
                 }
             });
 
@@ -310,6 +376,10 @@
                 this.$input.val('').focus();
                 this.hideResults();
                 this.$clear.removeClass('active');
+                // Show search history after clearing
+                if (this.history) {
+                    this.showSearchHistory();
+                }
             });
 
             // Mobile back button
@@ -527,7 +597,8 @@
             this.$resultsList.empty();
             this.products = data.products || [];
             this.selectedIndex = -1;
-            
+            this.showingHistory = false;
+
             let hasResults = false;
 
             // Render categories
@@ -570,8 +641,17 @@
                 this.$resultsList.append($seeAll);
             }
 
-            if (!hasResults) {
-                this.showNoResults();
+            if (hasResults) {
+                // Save successful search to history
+                if (this.history) {
+                    const currentTerm = this.$input.val().trim();
+                    if (currentTerm.length >= wcasConfig.minChars) {
+                        this.history.add(currentTerm);
+                    }
+                }
+            } else {
+                // Show no results with optional suggestions
+                this.showNoResults(data.suggestions);
             }
 
             this.resetPreview();
@@ -801,12 +881,66 @@
             }
         }
 
-        showNoResults() {
-            this.$resultsList.html(`
-                <div class="wcas-no-results">
-                    ${wcasConfig.i18n.noResults}
-                </div>
-            `);
+        showNoResults(suggestions) {
+            const i18n = wcasConfig.i18n;
+
+            let html = `<div class="wcas-no-results">${i18n.noResultsTryAgain || i18n.noResults}</div>`;
+
+            // Render suggestions if available
+            if (suggestions && wcasConfig.enableNoResultsSuggestions) {
+                let suggestionsHtml = '';
+
+                // Popular products
+                if (suggestions.popular_products && suggestions.popular_products.length > 0) {
+                    suggestionsHtml += `
+                        <div class="wcas-section wcas-section-suggestions">
+                            <div class="wcas-section-header">${i18n.popularProducts || 'Popular Products'}</div>
+                            <ul class="wcas-section-items wcas-suggestions-products">
+                    `;
+                    suggestions.popular_products.forEach((product) => {
+                        suggestionsHtml += `
+                            <li class="wcas-product-item wcas-suggestion-item">
+                                <a href="${product.url}">
+                                    <span class="wcas-product-thumb">
+                                        <img src="${product.image}" alt="${product.name}" loading="lazy">
+                                    </span>
+                                    <span class="wcas-product-info">
+                                        <span class="wcas-product-name">${product.name}</span>
+                                    </span>
+                                    <span class="wcas-product-price">${product.price}</span>
+                                </a>
+                            </li>
+                        `;
+                    });
+                    suggestionsHtml += '</ul></div>';
+                }
+
+                // Top categories
+                if (suggestions.top_categories && suggestions.top_categories.length > 0) {
+                    suggestionsHtml += `
+                        <div class="wcas-section wcas-section-suggestions">
+                            <div class="wcas-section-header">${i18n.topCategories || 'Top Categories'}</div>
+                            <ul class="wcas-section-items">
+                    `;
+                    suggestions.top_categories.forEach((cat) => {
+                        suggestionsHtml += `
+                            <li class="wcas-term-item">
+                                <a href="${cat.url}">
+                                    <span class="wcas-term-name">${cat.name}</span>
+                                    <span class="wcas-term-count">(${cat.count})</span>
+                                </a>
+                            </li>
+                        `;
+                    });
+                    suggestionsHtml += '</ul></div>';
+                }
+
+                if (suggestionsHtml) {
+                    html += suggestionsHtml;
+                }
+            }
+
+            this.$resultsList.html(html);
             this.resetPreview();
             this.showResults();
         }
@@ -828,7 +962,90 @@
         hideResults() {
             this.$resultsWrapper.removeClass('active');
             this.selectedIndex = -1;
+            this.showingHistory = false;
             this.hideMobilePreview();
+        }
+
+        /**
+         * Show recent search history dropdown
+         */
+        showSearchHistory() {
+            if (!this.history) return;
+
+            const searches = this.history.getAll();
+            if (searches.length === 0) return;
+
+            this.$resultsList.empty();
+            this.showingHistory = true;
+            this.resetPreview();
+
+            const i18n = wcasConfig.i18n;
+
+            const $section = $(`
+                <div class="wcas-section wcas-section-history">
+                    <div class="wcas-section-header wcas-history-header">
+                        <span>${i18n.recentSearches || 'Recent Searches'}</span>
+                        <button type="button" class="wcas-history-clear">${i18n.clearHistory || 'Clear all'}</button>
+                    </div>
+                    <ul class="wcas-section-items wcas-history-list"></ul>
+                </div>
+            `);
+
+            const $list = $section.find('.wcas-history-list');
+
+            searches.forEach((term) => {
+                const escapedTerm = $('<span>').text(term).html();
+                const $item = $(`
+                    <li class="wcas-history-item">
+                        <span class="wcas-history-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+                                <path d="M3 3v5h5"/>
+                                <path d="M12 7v5l4 2"/>
+                            </svg>
+                        </span>
+                        <span class="wcas-history-term">${escapedTerm}</span>
+                        <button type="button" class="wcas-history-remove" data-term="${escapedTerm}" title="Remove">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
+                            </svg>
+                        </button>
+                    </li>
+                `);
+
+                // Click on term to search
+                $item.find('.wcas-history-term, .wcas-history-icon').on('click', () => {
+                    this.$input.val(term);
+                    this.showingHistory = false;
+                    this.$clear.addClass('active');
+                    this.$spinner.addClass('active');
+                    this.performSearch(term);
+                });
+
+                // Remove single item
+                $item.find('.wcas-history-remove').on('click', (e) => {
+                    e.stopPropagation();
+                    this.history.remove(term);
+                    $item.slideUp(150, () => {
+                        $item.remove();
+                        // If no more items, hide
+                        if ($list.children().length === 0) {
+                            this.hideResults();
+                        }
+                    });
+                });
+
+                $list.append($item);
+            });
+
+            // Clear all
+            $section.find('.wcas-history-clear').on('click', () => {
+                this.history.clear();
+                this.hideResults();
+            });
+
+            this.$resultsList.append($section);
+            this.showResults();
         }
 
         handleKeyboard(e) {
