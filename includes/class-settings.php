@@ -207,6 +207,21 @@ class WCAS_Settings {
                     }
                 });
             });
+
+            document.querySelectorAll('.wcas-copy-btn').forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    var text = this.getAttribute('data-copy');
+                    if (navigator.clipboard && navigator.clipboard.writeText) {
+                        navigator.clipboard.writeText(text).then(function() {
+                            var msg = btn.nextElementSibling;
+                            if (msg) {
+                                msg.classList.add('visible');
+                                setTimeout(function() { msg.classList.remove('visible'); }, 1500);
+                            }
+                        });
+                    }
+                });
+            });
         ");
     }
 
@@ -300,6 +315,19 @@ class WCAS_Settings {
         ?>
         <div class="wrap wcas-settings-wrap">
             <h1><?php esc_html_e('WC Custom AJAX Search Settings', 'wc-custom-ajax-search'); ?></h1>
+
+            <div class="wcas-shortcode-box">
+                <span class="wcas-shortcode-label"><?php esc_html_e('Shortcode:', 'wc-custom-ajax-search'); ?></span>
+                <code class="wcas-shortcode-value" id="wcas-shortcode">[wc_ajax_search]</code>
+                <button type="button" class="button button-small wcas-copy-btn" data-copy="[wc_ajax_search]">
+                    <?php esc_html_e('Copy', 'wc-custom-ajax-search'); ?>
+                </button>
+                <span class="wcas-copy-success"><?php esc_html_e('Copied!', 'wc-custom-ajax-search'); ?></span>
+            </div>
+            <p class="description" style="margin-top: 6px;">
+                <?php esc_html_e('Place this shortcode on any page or post to display the search box. You can also use:', 'wc-custom-ajax-search'); ?>
+                <code>[wc_ajax_search placeholder="Search products..."]</code>
+            </p>
 
             <?php settings_errors('wcas_settings_group'); ?>
 

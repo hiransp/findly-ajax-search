@@ -63,3 +63,46 @@
 .wcas-settings-wrap input[type="number"].small-text {
     width: 80px;
 }
+
+/* Shortcode display box */
+.wcas-shortcode-box {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin: 15px 0 5px;
+    padding: 12px 18px;
+    background: #f0f6fc;
+    border: 1px solid #c3d4e0;
+    border-radius: 6px;
+}
+
+.wcas-shortcode-label {
+    font-weight: 600;
+    color: #1d2327;
+}
+
+.wcas-shortcode-value {
+    font-size: 14px;
+    padding: 4px 10px;
+    background: #fff;
+    border: 1px solid #c3d4e0;
+    border-radius: 4px;
+    user-select: all;
+    cursor: text;
+}
+
+.wcas-copy-btn {
+    cursor: pointer;
+}
+
+.wcas-copy-success {
+    color: #00a32a;
+    font-weight: 500;
+    font-size: 13px;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.wcas-copy-success.visible {
+    opacity: 1;
+}
