@@ -79,17 +79,26 @@ class WCAS_Search_Handler {
         
         // 5. Perform search with sanitized input
         $results = array(
-            'categories' => $this->search_taxonomy('product_cat', $search_term),
-            'tags' => $this->search_taxonomy('product_tag', $search_term),
+            'categories' => $this->config['search_categories'] ? $this->search_taxonomy('product_cat', $search_term) : array(),
+            'tags' => $this->config['search_tags'] ? $this->search_taxonomy('product_tag', $search_term) : array(),
             'custom_taxonomies' => $this->search_custom_taxonomies($search_term),
             'products' => $this->search_products($search_term),
             'total_count' => 0,
             'search_url' => esc_url(add_query_arg('s', rawurlencode($search_term), wc_get_page_permalink('shop'))),
+            'suggestions' => null,
         );
-        
+
         // Calculate total count
         $results['total_count'] = $this->get_total_products_count($search_term);
-        
+
+        // If no results and suggestions enabled, return popular products + top categories
+        $has_results = !empty($results['categories']) || !empty($results['tags'])
+            || !empty($results['custom_taxonomies']) || !empty($results['products']);
+
+        if (!$has_results && !empty($this->config['enable_no_results_suggestions'])) {
+            $results['suggestions'] = $this->get_suggestions();
+        }
+
         wp_send_json_success($results);
     }
     
@@ -332,14 +341,52 @@ class WCAS_Search_Handler {
      */
     private function search_products($search_term) {
         global $wpdb;
-        
-        // Build meta query for ACF fields - only use whitelisted fields
+
+        $escaped_like = '%' . $wpdb->esc_like($search_term) . '%';
+        $starts_with_like = $wpdb->esc_like($search_term) . '%';
+        $limit = absint($this->config['max_products']);
+
+        // Build WHERE conditions dynamically based on settings
+        $or_conditions = array();
+        $query_values = array();
+
+        // Relevance scoring values (always based on title)
+        $query_values[] = $starts_with_like;
+        $query_values[] = $escaped_like;
+
+        // Post type and status
+        $query_values[] = 'product';
+        $query_values[] = 'publish';
+
+        // Title search
+        if (!empty($this->config['search_title'])) {
+            $or_conditions[] = "p.post_title LIKE %s";
+            $query_values[] = $escaped_like;
+        }
+
+        // Content search
+        if (!empty($this->config['search_content'])) {
+            $or_conditions[] = "p.post_content LIKE %s";
+            $query_values[] = $escaped_like;
+        }
+
+        // Excerpt search
+        if (!empty($this->config['search_excerpt'])) {
+            $or_conditions[] = "p.post_excerpt LIKE %s";
+            $query_values[] = $escaped_like;
+        }
+
+        // Meta query (SKU + ACF fields)
         $meta_conditions = array();
         $meta_values = array();
-        $escaped_like = '%' . $wpdb->esc_like($search_term) . '%';
-        
+
+        if (!empty($this->config['search_sku'])) {
+            $meta_conditions[] = "(pm.meta_key = %s AND pm.meta_value LIKE %s)";
+            $meta_values[] = '_sku';
+            $meta_values[] = $escaped_like;
+        }
+
         foreach ($this->config['acf_fields'] as $field) {
-            // Validate field against whitelist
             if (!$this->is_valid_meta_key($field)) {
                 continue;
             }
@@ -347,42 +394,51 @@ class WCAS_Search_Handler {
             $meta_values[] = $field;
             $meta_values[] = $escaped_like;
         }
-        
-        // Also search in SKU (always whitelisted)
-        $meta_conditions[] = "(pm.meta_key = %s AND pm.meta_value LIKE %s)";
-        $meta_values[] = '_sku';
-        $meta_values[] = $escaped_like;
-        
-        $meta_sql = implode(' OR ', $meta_conditions);
-        
-        // Build taxonomy query for custom taxonomies - only use whitelisted taxonomies
+
+        if (!empty($meta_conditions)) {
+            $meta_sql = implode(' OR ', $meta_conditions);
+            $or_conditions[] = "p.ID IN (SELECT DISTINCT pm.post_id FROM {$wpdb->postmeta} pm WHERE {$meta_sql})";
+            $query_values = array_merge($query_values, $meta_values);
+        }
+
+        // Taxonomy query
         $tax_conditions = array();
-        $tax_values = array();
-        
-        $all_taxonomies = array_merge(
-            array('product_cat', 'product_tag'),
-            $this->config['custom_taxonomies']
-        );
-        
+        $tax_values_arr = array();
+
+        $all_taxonomies = array();
+        if (!empty($this->config['search_categories'])) {
+            $all_taxonomies[] = 'product_cat';
+        }
+        if (!empty($this->config['search_tags'])) {
+            $all_taxonomies[] = 'product_tag';
+        }
+        $all_taxonomies = array_merge($all_taxonomies, $this->config['custom_taxonomies']);
+
         foreach ($all_taxonomies as $taxonomy) {
-            // Validate taxonomy against whitelist
             if (!$this->is_valid_taxonomy($taxonomy)) {
                 continue;
             }
             $tax_conditions[] = "(tt.taxonomy = %s AND t.name LIKE %s)";
-            $tax_values[] = $taxonomy;
-            $tax_values[] = $escaped_like;
+            $tax_values_arr[] = $taxonomy;
+            $tax_values_arr[] = $escaped_like;
         }
-        
-        $tax_sql = implode(' OR ', $tax_conditions);
-        
-        // Combined query to get product IDs matching any criteria
-        $starts_with_like = $wpdb->esc_like($search_term) . '%';
-        $limit = absint($this->config['max_products']);
-        
+
+        if (!empty($tax_conditions)) {
+            $tax_sql = implode(' OR ', $tax_conditions);
+            $or_conditions[] = "p.ID IN (SELECT DISTINCT tr.object_id FROM {$wpdb->term_relationships} tr INNER JOIN {$wpdb->term_taxonomy} tt ON tr.term_taxonomy_id = tt.term_taxonomy_id INNER JOIN {$wpdb->terms} t ON tt.term_id = t.term_id WHERE {$tax_sql})";
+            $query_values = array_merge($query_values, $tax_values_arr);
+        }
+
+        // If no search conditions are enabled, return empty
+        if (empty($or_conditions)) {
+            return array();
+        }
+
+        $where_or = implode("\n                OR ", $or_conditions);
+
         $query = "
             SELECT DISTINCT p.ID, p.post_title,
-                   CASE 
+                   CASE
                        WHEN p.post_title LIKE %s THEN 1
                        WHEN p.post_title LIKE %s THEN 2
                        ELSE 3
@@ -391,48 +447,26 @@ class WCAS_Search_Handler {
             WHERE p.post_type = %s
             AND p.post_status = %s
             AND (
-                p.post_title LIKE %s
-                OR p.post_content LIKE %s
-                OR p.post_excerpt LIKE %s
-                OR p.ID IN (
-                    SELECT DISTINCT pm.post_id 
-                    FROM {$wpdb->postmeta} pm 
-                    WHERE {$meta_sql}
-                )
-                OR p.ID IN (
-                    SELECT DISTINCT tr.object_id
-                    FROM {$wpdb->term_relationships} tr
-                    INNER JOIN {$wpdb->term_taxonomy} tt ON tr.term_taxonomy_id = tt.term_taxonomy_id
-                    INNER JOIN {$wpdb->terms} t ON tt.term_id = t.term_id
-                    WHERE {$tax_sql}
-                )
+                {$where_or}
             )
             ORDER BY relevance ASC, p.post_title ASC
             LIMIT %d
         ";
-        
-        // Prepare query with all values - using named placeholders for clarity
-        $query_values = array_merge(
-            array($starts_with_like, $escaped_like), // For relevance scoring
-            array('product', 'publish'), // Post type and status (parameterized for safety)
-            array($escaped_like, $escaped_like, $escaped_like), // For title, content, excerpt
-            $meta_values, // For meta query
-            $tax_values, // For taxonomy query
-            array($limit) // Limit
-        );
-        
+
+        $query_values[] = $limit;
+
         $product_ids = $wpdb->get_results($wpdb->prepare($query, $query_values));
-        
+
         $products = array();
         foreach ($product_ids as $row) {
             $product = wc_get_product(absint($row->ID));
             if (!$product || !$product->is_visible()) {
                 continue;
             }
-            
+
             $products[] = $this->format_product($product, $search_term);
         }
-        
+
         return $products;
     }
     
@@ -498,13 +532,38 @@ class WCAS_Search_Handler {
      */
     private function get_total_products_count($search_term) {
         global $wpdb;
-        
+
         $escaped_like = '%' . $wpdb->esc_like($search_term) . '%';
-        
-        // Build meta query for ACF fields
+
+        // Build WHERE conditions dynamically (mirrors search_products logic)
+        $or_conditions = array();
+        $query_values = array('product', 'publish');
+
+        if (!empty($this->config['search_title'])) {
+            $or_conditions[] = "p.post_title LIKE %s";
+            $query_values[] = $escaped_like;
+        }
+
+        if (!empty($this->config['search_content'])) {
+            $or_conditions[] = "p.post_content LIKE %s";
+            $query_values[] = $escaped_like;
+        }
+
+        if (!empty($this->config['search_excerpt'])) {
+            $or_conditions[] = "p.post_excerpt LIKE %s";
+            $query_values[] = $escaped_like;
+        }
+
+        // Meta conditions
         $meta_conditions = array();
         $meta_values = array();
-        
+
+        if (!empty($this->config['search_sku'])) {
+            $meta_conditions[] = "(pm.meta_key = %s AND pm.meta_value LIKE %s)";
+            $meta_values[] = '_sku';
+            $meta_values[] = $escaped_like;
+        }
+
         foreach ($this->config['acf_fields'] as $field) {
             if (!$this->is_valid_meta_key($field)) {
                 continue;
@@ -513,67 +572,141 @@ class WCAS_Search_Handler {
             $meta_values[] = $field;
             $meta_values[] = $escaped_like;
         }
-        
-        $meta_conditions[] = "(pm.meta_key = %s AND pm.meta_value LIKE %s)";
-        $meta_values[] = '_sku';
-        $meta_values[] = $escaped_like;
-        
-        $meta_sql = implode(' OR ', $meta_conditions);
-        
-        // Build taxonomy query
+
+        if (!empty($meta_conditions)) {
+            $meta_sql = implode(' OR ', $meta_conditions);
+            $or_conditions[] = "p.ID IN (SELECT DISTINCT pm.post_id FROM {$wpdb->postmeta} pm WHERE {$meta_sql})";
+            $query_values = array_merge($query_values, $meta_values);
+        }
+
+        // Taxonomy conditions
         $tax_conditions = array();
-        $tax_values = array();
-        
-        $all_taxonomies = array_merge(
-            array('product_cat', 'product_tag'),
-            $this->config['custom_taxonomies']
-        );
-        
+        $tax_values_arr = array();
+
+        $all_taxonomies = array();
+        if (!empty($this->config['search_categories'])) {
+            $all_taxonomies[] = 'product_cat';
+        }
+        if (!empty($this->config['search_tags'])) {
+            $all_taxonomies[] = 'product_tag';
+        }
+        $all_taxonomies = array_merge($all_taxonomies, $this->config['custom_taxonomies']);
+
         foreach ($all_taxonomies as $taxonomy) {
             if (!$this->is_valid_taxonomy($taxonomy)) {
                 continue;
             }
             $tax_conditions[] = "(tt.taxonomy = %s AND t.name LIKE %s)";
-            $tax_values[] = $taxonomy;
-            $tax_values[] = $escaped_like;
+            $tax_values_arr[] = $taxonomy;
+            $tax_values_arr[] = $escaped_like;
         }
-        
-        $tax_sql = implode(' OR ', $tax_conditions);
-        
+
+        if (!empty($tax_conditions)) {
+            $tax_sql = implode(' OR ', $tax_conditions);
+            $or_conditions[] = "p.ID IN (SELECT DISTINCT tr.object_id FROM {$wpdb->term_relationships} tr INNER JOIN {$wpdb->term_taxonomy} tt ON tr.term_taxonomy_id = tt.term_taxonomy_id INNER JOIN {$wpdb->terms} t ON tt.term_id = t.term_id WHERE {$tax_sql})";
+            $query_values = array_merge($query_values, $tax_values_arr);
+        }
+
+        if (empty($or_conditions)) {
+            return 0;
+        }
+
+        $where_or = implode("\n                OR ", $or_conditions);
+
         $query = "
             SELECT COUNT(DISTINCT p.ID)
             FROM {$wpdb->posts} p
             WHERE p.post_type = %s
             AND p.post_status = %s
             AND (
-                p.post_title LIKE %s
-                OR p.post_content LIKE %s
-                OR p.post_excerpt LIKE %s
-                OR p.ID IN (
-                    SELECT DISTINCT pm.post_id 
-                    FROM {$wpdb->postmeta} pm 
-                    WHERE {$meta_sql}
-                )
-                OR p.ID IN (
-                    SELECT DISTINCT tr.object_id
-                    FROM {$wpdb->term_relationships} tr
-                    INNER JOIN {$wpdb->term_taxonomy} tt ON tr.term_taxonomy_id = tt.term_taxonomy_id
-                    INNER JOIN {$wpdb->terms} t ON tt.term_id = t.term_id
-                    WHERE {$tax_sql}
-                )
+                {$where_or}
             )
         ";
-        
-        $query_values = array_merge(
-            array('product', 'publish'),
-            array($escaped_like, $escaped_like, $escaped_like),
-            $meta_values,
-            $tax_values
-        );
-        
+
         return absint($wpdb->get_var($wpdb->prepare($query, $query_values)));
     }
     
+    /**
+     * Get suggestions for no-results state
+     * Returns popular products and top categories
+     */
+    private function get_suggestions() {
+        $suggestions = array(
+            'popular_products' => array(),
+            'top_categories'   => array(),
+        );
+
+        // Popular products — best-selling or most recent
+        $popular_args = array(
+            'post_type'      => 'product',
+            'post_status'    => 'publish',
+            'posts_per_page' => 4,
+            'meta_key'       => 'total_sales',
+            'orderby'        => 'meta_value_num',
+            'order'          => 'DESC',
+        );
+
+        $popular_query = new WP_Query($popular_args);
+
+        // Fallback to recent products if no sales data
+        if (!$popular_query->have_posts()) {
+            $popular_query = new WP_Query(array(
+                'post_type'      => 'product',
+                'post_status'    => 'publish',
+                'posts_per_page' => 4,
+                'orderby'        => 'date',
+                'order'          => 'DESC',
+            ));
+        }
+
+        if ($popular_query->have_posts()) {
+            while ($popular_query->have_posts()) {
+                $popular_query->the_post();
+                $product = wc_get_product(get_the_ID());
+                if (!$product || !$product->is_visible()) {
+                    continue;
+                }
+                $image_id = $product->get_image_id();
+                $image_url = $image_id ? wp_get_attachment_image_url($image_id, 'thumbnail') : wc_placeholder_img_src('thumbnail');
+
+                $suggestions['popular_products'][] = array(
+                    'id'    => absint($product->get_id()),
+                    'name'  => esc_html($product->get_name()),
+                    'url'   => esc_url($product->get_permalink()),
+                    'image' => esc_url($image_url ?: wc_placeholder_img_src('thumbnail')),
+                    'price' => wp_kses_post($product->get_price_html()),
+                );
+            }
+            wp_reset_postdata();
+        }
+
+        // Top categories by product count
+        $top_cats = get_terms(array(
+            'taxonomy'   => 'product_cat',
+            'orderby'    => 'count',
+            'order'      => 'DESC',
+            'number'     => 5,
+            'hide_empty' => true,
+        ));
+
+        if (!is_wp_error($top_cats)) {
+            foreach ($top_cats as $cat) {
+                $cat_link = get_term_link($cat);
+                if (is_wp_error($cat_link)) {
+                    continue;
+                }
+                $suggestions['top_categories'][] = array(
+                    'id'    => absint($cat->term_id),
+                    'name'  => esc_html($cat->name),
+                    'url'   => esc_url($cat_link),
+                    'count' => absint($cat->count),
+                );
+            }
+        }
+
+        return $suggestions;
+    }
+
     /**
      * Highlight search term in text
      * Safe output with proper escaping
@@ -581,10 +714,10 @@ class WCAS_Search_Handler {
     private function highlight_term($text, $search_term) {
         // First escape the text
         $escaped_text = esc_html($text);
-        
+
         // Then escape the search term for use in regex
         $escaped_term = preg_quote(esc_html($search_term), '/');
-        
+
         // Perform highlight with safe HTML
         return preg_replace(
             '/(' . $escaped_term . ')/i',
