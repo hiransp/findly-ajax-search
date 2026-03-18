@@ -9,7 +9,12 @@ if (!defined('ABSPATH')) {
 }
 
 class WCAS_Shortcode {
-    
+
+    /**
+     * Flag: shortcode was used on the current page
+     */
+    public static $enqueue_assets = false;
+
     public function __construct() {
         add_shortcode('wc_ajax_search', array($this, 'render_search'));
     }
@@ -23,6 +28,9 @@ class WCAS_Shortcode {
      *   - class: Additional CSS class for wrapper
      */
     public function render_search($atts) {
+        // Mark that assets are needed on this page
+        self::$enqueue_assets = true;
+
         $atts = shortcode_atts(array(
             'placeholder' => __('Search for your favorite books...', 'wc-custom-ajax-search'),
             'class' => '',

@@ -95,26 +95,38 @@ function wcas_init() {
 add_action('plugins_loaded', 'wcas_init');
 
 /**
- * Enqueue scripts and styles
+ * Register scripts and styles (does not enqueue yet)
  */
-function wcas_enqueue_assets() {
-    // Only load if shortcode is present or on all pages (you can optimize this later)
-    wp_enqueue_style(
+function wcas_register_assets() {
+    wp_register_style(
         'wcas-styles',
         WCAS_PLUGIN_URL . 'assets/css/ajax-search.css',
         array(),
         WCAS_VERSION
     );
-    
-    wp_enqueue_script(
+
+    wp_register_script(
         'wcas-script',
         WCAS_PLUGIN_URL . 'assets/js/ajax-search.js',
         array('jquery'),
         WCAS_VERSION,
         true
     );
-    
-    // Pass config to JavaScript
+}
+add_action('wp_enqueue_scripts', 'wcas_register_assets');
+
+/**
+ * Enqueue assets only on pages where the shortcode is actually used.
+ * Runs at wp_footer so the shortcode has already been parsed by then.
+ */
+function wcas_maybe_enqueue_assets() {
+    if (!class_exists('WCAS_Shortcode') || !WCAS_Shortcode::$enqueue_assets) {
+        return;
+    }
+
+    wp_enqueue_style('wcas-styles');
+    wp_enqueue_script('wcas-script');
+
     $config = wcas_get_config();
     wp_localize_script('wcas-script', 'wcasConfig', array(
         'ajaxUrl' => admin_url('admin-ajax.php'),
@@ -148,7 +160,7 @@ function wcas_enqueue_assets() {
         ),
     ));
 }
-add_action('wp_enqueue_scripts', 'wcas_enqueue_assets');
+add_action('wp_footer', 'wcas_maybe_enqueue_assets', 1);
 
 /**
  * Plugin activation
