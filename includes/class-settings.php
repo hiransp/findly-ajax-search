@@ -1,7 +1,11 @@
 <?php
 /**
  * Settings Class
- * Admin settings page under WooCommerce menu
+ *
+ * Admin settings page under WooCommerce menu.
+ *
+ * @package WC_Custom_AJAX_Search
+ * @license GPL-2.0-or-later
  */
 
 if (!defined('ABSPATH')) {

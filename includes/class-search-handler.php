@@ -1,16 +1,13 @@
 <?php
 /**
  * Search Handler Class
- * Handles AJAX search requests and queries
- * 
- * Security measures implemented:
- * - Nonce verification
- * - Input sanitization and validation
- * - Prepared statements for all SQL queries
- * - Output escaping
- * - Rate limiting
- * - Search term length limits
- * - Whitelist validation for taxonomies and meta keys
+ *
+ * Handles AJAX search requests and queries with comprehensive security:
+ * nonce verification, input sanitization, prepared SQL statements,
+ * output escaping, rate limiting, and whitelist validation.
+ *
+ * @package WC_Custom_AJAX_Search
+ * @license GPL-2.0-or-later
  */
 
 if (!defined('ABSPATH')) {

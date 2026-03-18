@@ -1,11 +1,26 @@
 <?php
 /**
- * Plugin Name: WC Custom AJAX Search
- * Description: Custom AJAX search for WooCommerce with ACF fields and custom taxonomies support
- * Version: 1.0.0
- * Author: Hiran
- * Text Domain: wc-custom-ajax-search
- * Requires Plugins: woocommerce
+ * WC Custom AJAX Search
+ *
+ * @package WC_Custom_AJAX_Search
+ * @license GPL-2.0-or-later
+ *
+ * Plugin Name:       WC Custom AJAX Search
+ * Plugin URI:        https://github.com/hiran/wc-custom-ajax-search
+ * Description:       Live AJAX product search for WooCommerce with ACF custom fields, custom taxonomies, product preview panel, and full mobile optimization.
+ * Version:           1.0.0
+ * Author:            Hiran
+ * Author URI:        https://github.com/hiran
+ * License:           GPL-2.0-or-later
+ * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
+ * Text Domain:       wc-custom-ajax-search
+ * Domain Path:       /languages
+ * Requires at least: 5.8
+ * Tested up to:      6.7
+ * Requires PHP:      7.4
+ * Requires Plugins:  woocommerce
+ * WC requires at least: 6.0
+ * WC tested up to:   9.6
  */
 
 if (!defined('ABSPATH')) {

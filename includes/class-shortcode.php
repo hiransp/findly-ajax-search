@@ -1,7 +1,11 @@
 <?php
 /**
  * Shortcode Class
- * Handles shortcode registration and rendering
+ *
+ * Registers and renders the [wc_ajax_search] shortcode.
+ *
+ * @package WC_Custom_AJAX_Search
+ * @license GPL-2.0-or-later
  */
 
 if (!defined('ABSPATH')) {
