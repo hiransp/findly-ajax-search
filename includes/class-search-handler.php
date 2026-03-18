@@ -41,15 +41,37 @@ class WCAS_Search_Handler {
     }
     
     /**
+     * Set security headers on AJAX responses
+     */
+    private function set_security_headers() {
+        if (!headers_sent()) {
+            header('X-Content-Type-Options: nosniff');
+            header('X-Frame-Options: DENY');
+            header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+            header('Pragma: no-cache');
+            header('Referrer-Policy: strict-origin-when-cross-origin');
+        }
+    }
+
+    /**
      * Main AJAX search handler
      */
     public function handle_search() {
+        // 0. Enforce POST method only
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            wp_send_json_error(array('message' => 'Method not allowed'), 405);
+            exit;
+        }
+
+        // Set security headers on AJAX response
+        $this->set_security_headers();
+
         // 1. Verify nonce (CSRF protection)
         if (!isset($_POST['nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'wcas_search_nonce')) {
             wp_send_json_error(array('message' => 'Security check failed'), 403);
             exit;
         }
-        
+
         // 2. Rate limiting check
         if ($this->is_rate_limited()) {
             wp_send_json_error(array('message' => 'Too many requests. Please slow down.'), 429);
@@ -67,12 +89,12 @@ class WCAS_Search_Handler {
             exit;
         }
         
-        if (strlen($search_term) < $this->config['min_chars']) {
+        if (mb_strlen($search_term, 'UTF-8') < $this->config['min_chars']) {
             wp_send_json_error(array('message' => 'Search term too short'), 400);
             exit;
         }
-        
-        if (strlen($search_term) > self::MAX_SEARCH_LENGTH) {
+
+        if (mb_strlen($search_term, 'UTF-8') > self::MAX_SEARCH_LENGTH) {
             wp_send_json_error(array('message' => 'Search term too long'), 400);
             exit;
         }
@@ -104,76 +126,142 @@ class WCAS_Search_Handler {
     
     /**
      * Sanitize and validate search term
-     * 
+     *
+     * Defense-in-depth: even though we use $wpdb->prepare() for all queries,
+     * we still block obvious attack payloads at the input layer to:
+     * 1. Reduce noise hitting the database
+     * 2. Log/flag attackers early
+     * 3. Protect against any future code that might bypass prepare()
+     *
      * @param string $term Raw search term
      * @return string|false Sanitized term or false if invalid
      */
     private function sanitize_search_term($term) {
-        // Remove null bytes and other dangerous characters
-        $term = str_replace(chr(0), '', $term);
-        
-        // Basic sanitization
+        // Reject non-string input
+        if (!is_string($term)) {
+            return false;
+        }
+
+        // Remove null bytes and all ASCII control characters (0x00-0x1F except tab/newline, 0x7F)
+        $term = preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/', '', $term);
+
+        // Detect double-encoding attacks (%2527 = double-encoded single quote)
+        $decoded_once = rawurldecode($term);
+        if ($decoded_once !== rawurldecode($decoded_once)) {
+            $this->log_suspicious_activity($term, 'Double-encoding attack attempt');
+            return false;
+        }
+
+        // WordPress sanitization (strips tags, encodes special chars, etc.)
         $term = sanitize_text_field($term);
-        
-        // Trim whitespace
+
+        // Trim and collapse whitespace
         $term = trim($term);
-        
-        // Remove multiple consecutive spaces
         $term = preg_replace('/\s+/', ' ', $term);
-        
-        // Check for potentially malicious patterns
-        // Block SQL injection attempts
+
+        // Enforce length limit using multibyte-safe strlen
+        if (mb_strlen($term, 'UTF-8') > self::MAX_SEARCH_LENGTH) {
+            $term = mb_substr($term, 0, self::MAX_SEARCH_LENGTH, 'UTF-8');
+        }
+
+        // Reject empty after sanitization
+        if ($term === '') {
+            return false;
+        }
+
+        // Block SQL injection patterns (defense-in-depth — queries use prepare())
         $dangerous_patterns = array(
-            '/(\%27)|(\')|(\-\-)|(\%23)|(#)/i',  // SQL meta characters
-            '/((\%3D)|(=))[^\n]*((\%27)|(\')|(\-\-)|(\%3B)|(;))/i', // SQL injection
-            '/\w*((\%27)|(\'))((\%6F)|o|(\%4F))((\%72)|r|(\%52))/i', // SQL OR
-            '/((\%27)|(\'))union/i', // SQL UNION
-            '/exec(\s|\+)+(s|x)p\w+/i', // SQL stored procedure
-            '/UNION(\s+)SELECT/i',
-            '/INSERT(\s+)INTO/i',
-            '/DELETE(\s+)FROM/i',
-            '/DROP(\s+)TABLE/i',
-            '/UPDATE(\s+)\w+(\s+)SET/i',
+            '/(\%27)|(\')|(\-\-)|(\%23)|(#)/i',
+            '/((\%3D)|(=))[^\n]*((\%27)|(\')|(\-\-)|(\%3B)|(;))/i',
+            '/\w*((\%27)|(\'))((\%6F)|o|(\%4F))((\%72)|r|(\%52))/i',
+            '/((\%27)|(\'))union/i',
+            '/exec(\s|\+)+(s|x)p\w+/i',
+            '/UNION[\s\/\*]+SELECT/i',
+            '/INSERT[\s\/\*]+INTO/i',
+            '/DELETE[\s\/\*]+FROM/i',
+            '/DROP[\s\/\*]+TABLE/i',
+            '/UPDATE[\s\/\*]+\w+[\s\/\*]+SET/i',
+            '/LOAD_FILE\s*\(/i',
+            '/INTO\s+(OUT|DUMP)FILE/i',
+            '/BENCHMARK\s*\(/i',
+            '/SLEEP\s*\(/i',
+            '/0x[0-9a-f]{8,}/i',              // long hex literals (common in injection)
+            '/CHAR\s*\(\s*\d+/i',             // CHAR() obfuscation
         );
-        
+
         foreach ($dangerous_patterns as $pattern) {
             if (preg_match($pattern, $term)) {
-                // Log suspicious activity
                 $this->log_suspicious_activity($term, 'SQL injection attempt');
                 return false;
             }
         }
-        
-        // Additional XSS protection - remove any HTML/script tags
+
+        // Block XSS patterns
+        $xss_patterns = array(
+            '/<script/i',
+            '/javascript\s*:/i',
+            '/on\w+\s*=/i',                   // inline event handlers
+            '/data\s*:\s*text\/html/i',        // data URI XSS
+            '/expression\s*\(/i',              // CSS expression()
+            '/vbscript\s*:/i',
+        );
+
+        foreach ($xss_patterns as $pattern) {
+            if (preg_match($pattern, $term)) {
+                $this->log_suspicious_activity($term, 'XSS attempt');
+                return false;
+            }
+        }
+
+        // Strip any remaining HTML tags (belt and suspenders)
         $term = wp_strip_all_tags($term);
-        
+
         return $term;
     }
     
     /**
      * Check if current request is rate limited
-     * 
+     * Uses direct DB query for atomic increment to prevent race conditions
+     * under burst traffic (get_transient + set_transient is not atomic)
+     *
      * @return bool True if rate limited
      */
     private function is_rate_limited() {
+        global $wpdb;
+
         $ip = $this->get_client_ip();
-        $transient_key = 'wcas_rate_' . md5($ip);
-        
-        $requests = get_transient($transient_key);
-        
-        if ($requests === false) {
-            // First request
-            set_transient($transient_key, 1, self::RATE_LIMIT_WINDOW);
+        $transient_key = '_transient_wcas_rate_' . md5($ip);
+        $timeout_key = '_transient_timeout_wcas_rate_' . md5($ip);
+        $now = time();
+
+        // Atomic: try to increment if the transient exists and hasn't expired
+        $updated = $wpdb->query($wpdb->prepare(
+            "UPDATE {$wpdb->options}
+             SET option_value = option_value + 1
+             WHERE option_name = %s
+             AND EXISTS (
+                 SELECT 1 FROM (SELECT option_value FROM {$wpdb->options} WHERE option_name = %s) AS t
+                 WHERE t.option_value > %d
+             )",
+            $transient_key,
+            $timeout_key,
+            $now
+        ));
+
+        if ($updated) {
+            // Row existed and was incremented — check current count
+            $count = (int) get_option($transient_key, 0);
+            if ($count > self::RATE_LIMIT_REQUESTS) {
+                $this->log_suspicious_activity($ip, 'Rate limit exceeded');
+                return true;
+            }
             return false;
         }
-        
-        if ($requests >= self::RATE_LIMIT_REQUESTS) {
-            $this->log_suspicious_activity($ip, 'Rate limit exceeded');
-            return true;
-        }
-        
-        // Increment counter
-        set_transient($transient_key, $requests + 1, self::RATE_LIMIT_WINDOW);
+
+        // No existing transient or it expired — create fresh via WordPress API
+        // Delete stale entries first
+        delete_transient('wcas_rate_' . md5($ip));
+        set_transient('wcas_rate_' . md5($ip), 1, self::RATE_LIMIT_WINDOW);
         return false;
     }
     
@@ -210,20 +298,30 @@ class WCAS_Search_Handler {
     
     /**
      * Log suspicious activity
-     * 
-     * @param string $data Data to log
+     * Always logs security events (not gated behind WP_DEBUG) so that
+     * attacks are visible in production. Uses error_log() which writes
+     * to the PHP error log configured by the server.
+     *
+     * Also stores a rolling count in a transient so admins can see
+     * recent attack volume without digging through log files.
+     *
+     * @param string $data Data to log (truncated to 100 chars)
      * @param string $type Type of suspicious activity
      */
     private function log_suspicious_activity($data, $type) {
-        if (defined('WP_DEBUG') && WP_DEBUG) {
-            error_log(sprintf(
-                '[WC Custom AJAX Search] Suspicious activity detected - Type: %s, Data: %s, IP: %s, Time: %s',
-                $type,
-                substr($data, 0, 100), // Truncate for safety
-                $this->get_client_ip(),
-                current_time('mysql')
-            ));
-        }
+        // Always log security events to PHP error log
+        error_log(sprintf(
+            '[WC AJAX Search] SECURITY — %s | Data: %s | IP: %s | URI: %s | Time: %s',
+            $type,
+            substr($data, 0, 100),
+            $this->get_client_ip(),
+            isset($_SERVER['REQUEST_URI']) ? sanitize_text_field(wp_unslash($_SERVER['REQUEST_URI'])) : 'unknown',
+            current_time('mysql')
+        ));
+
+        // Increment rolling counter for admin visibility
+        $count = (int) get_transient('wcas_suspicious_count');
+        set_transient('wcas_suspicious_count', $count + 1, DAY_IN_SECONDS);
     }
     
     /**
@@ -475,8 +573,12 @@ class WCAS_Search_Handler {
      */
     private function format_product($product, $search_term) {
         $image_id = $product->get_image_id();
-        $image_url = $image_id ? wp_get_attachment_image_url($image_id, 'thumbnail') : wc_placeholder_img_src('thumbnail');
-        $image_url_large = $image_id ? wp_get_attachment_image_url($image_id, 'medium') : wc_placeholder_img_src('medium');
+        $placeholder = wc_placeholder_img_src('thumbnail');
+        $placeholder_large = wc_placeholder_img_src('medium');
+
+        // wp_get_attachment_image_url() can return false if attachment was deleted
+        $image_url = $image_id ? (wp_get_attachment_image_url($image_id, 'thumbnail') ?: $placeholder) : $placeholder;
+        $image_url_large = $image_id ? (wp_get_attachment_image_url($image_id, 'medium') ?: $placeholder_large) : $placeholder_large;
         
         // Get matched ACF field value if any
         $matched_field = $this->get_matched_acf_field($product->get_id(), $search_term);
@@ -667,13 +769,14 @@ class WCAS_Search_Handler {
                     continue;
                 }
                 $image_id = $product->get_image_id();
-                $image_url = $image_id ? wp_get_attachment_image_url($image_id, 'thumbnail') : wc_placeholder_img_src('thumbnail');
+                $fallback = wc_placeholder_img_src('thumbnail');
+                $image_url = $image_id ? (wp_get_attachment_image_url($image_id, 'thumbnail') ?: $fallback) : $fallback;
 
                 $suggestions['popular_products'][] = array(
                     'id'    => absint($product->get_id()),
                     'name'  => esc_html($product->get_name()),
                     'url'   => esc_url($product->get_permalink()),
-                    'image' => esc_url($image_url ?: wc_placeholder_img_src('thumbnail')),
+                    'image' => esc_url($image_url),
                     'price' => wp_kses_post($product->get_price_html()),
                 );
             }
