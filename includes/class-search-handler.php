@@ -31,13 +31,24 @@ class WCAS_Search_Handler {
      */
     const RATE_LIMIT_REQUESTS = 30;
     const RATE_LIMIT_WINDOW = 60; // seconds
+
+    /**
+     * Cache TTL for search results (seconds)
+     */
+    const CACHE_TTL = 60;
     
     public function __construct() {
         $this->config = wcas_get_config();
-        
+
         // Register AJAX handlers
         add_action('wp_ajax_wcas_search', array($this, 'handle_search'));
         add_action('wp_ajax_nopriv_wcas_search', array($this, 'handle_search'));
+
+        // Invalidate search cache when products change
+        add_action('woocommerce_update_product', array($this, 'flush_search_cache'));
+        add_action('woocommerce_new_product', array($this, 'flush_search_cache'));
+        add_action('before_delete_post', array($this, 'flush_search_cache'));
+        add_action('edited_term', array($this, 'flush_search_cache'));
     }
     
     /**
@@ -51,6 +62,19 @@ class WCAS_Search_Handler {
             header('Pragma: no-cache');
             header('Referrer-Policy: strict-origin-when-cross-origin');
         }
+    }
+
+    /**
+     * Flush all cached search results.
+     * Called when products, terms, or taxonomy data changes.
+     */
+    public function flush_search_cache() {
+        global $wpdb;
+        $wpdb->query(
+            "DELETE FROM {$wpdb->options}
+             WHERE option_name LIKE '_transient_wcas_r_%'
+             OR option_name LIKE '_transient_timeout_wcas_r_%'"
+        );
     }
 
     /**
@@ -99,7 +123,16 @@ class WCAS_Search_Handler {
             exit;
         }
         
-        // 5. Perform search with sanitized input
+        // 5. Check cache first
+        $cache_key = 'wcas_r_' . md5($search_term . WCAS_VERSION);
+        $cached = get_transient($cache_key);
+
+        if ($cached !== false) {
+            wp_send_json_success($cached);
+            return;
+        }
+
+        // 6. Perform search with sanitized input
         $results = array(
             'categories' => $this->config['search_categories'] ? $this->search_taxonomy('product_cat', $search_term) : array(),
             'tags' => $this->config['search_tags'] ? $this->search_taxonomy('product_tag', $search_term) : array(),
@@ -120,6 +153,9 @@ class WCAS_Search_Handler {
         if (!$has_results && !empty($this->config['enable_no_results_suggestions'])) {
             $results['suggestions'] = $this->get_suggestions();
         }
+
+        // Cache results
+        set_transient($cache_key, $results, self::CACHE_TTL);
 
         wp_send_json_success($results);
     }
