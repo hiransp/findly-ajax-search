@@ -668,6 +668,15 @@
                         </a>
                     </div>
                 `);
+
+                // Clear keyboard selection on mouse hover
+                if (!isTouchDevice()) {
+                    $seeAll.on('mouseenter', () => {
+                        this.selectedIndex = -1;
+                        this.getNavigableItems().removeClass('selected');
+                    });
+                }
+
                 this.$resultsList.append($seeAll);
             }
 
@@ -706,6 +715,15 @@
                         </a>
                     </li>
                 `);
+
+                // Clear keyboard selection on mouse hover
+                if (!isTouchDevice()) {
+                    $item.on('mouseenter', () => {
+                        this.selectedIndex = -1;
+                        this.getNavigableItems().removeClass('selected');
+                    });
+                }
+
                 $list.append($item);
             });
 
@@ -753,8 +771,9 @@
                 if (!isTouchDevice()) {
                     $item.on('mouseenter', () => {
                         this.showPreview(product);
-                        this.selectedIndex = index;
-                        this.updateSelection();
+                        // Clear keyboard selection on mouse interaction
+                        this.selectedIndex = -1;
+                        this.getNavigableItems().removeClass('selected');
                     });
                 }
 
@@ -762,7 +781,8 @@
                 $item.find('.wcas-product-expand').on('click touchend', (e) => {
                     e.preventDefault();
                     e.stopPropagation();
-                    this.selectedIndex = index;
+                    // Find the correct global index for this item
+                    this.selectedIndex = this.getNavigableItems().index($item);
                     this.updateSelection();
                     
                     if (this.isMobileMode) {
