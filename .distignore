@@ -3,6 +3,7 @@
 .github
 .gitignore
 .distignore
+Makefile
 CLAUDE.md
 README.md
 node_modules
