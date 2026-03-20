@@ -1,5 +1,6 @@
 # Files to exclude from the WordPress.org release zip
 .git
+.github
 .gitignore
 .distignore
 CLAUDE.md
