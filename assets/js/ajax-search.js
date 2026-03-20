@@ -500,19 +500,31 @@
          */
         activateMobileMode() {
             if (this.isMobileMode) return;
-            
+
             this.isMobileMode = true;
             this.originalScrollPosition = window.scrollY;
-            
+
             // Add mobile class
             this.$wrapper.addClass('wcas-mobile-active');
-            
+
             // Lock body scroll
             lockBodyScroll();
-            
+
             // Push history state for back button support
             history.pushState({ wcasSearch: true }, '');
-            
+
+            // Listen for virtual keyboard resize via visualViewport API
+            if (window.visualViewport) {
+                this._viewportHandler = () => {
+                    if (!this.isMobileMode) return;
+                    const vvh = window.visualViewport.height;
+                    this.$wrapper[0].style.height = vvh + 'px';
+                };
+                window.visualViewport.addEventListener('resize', this._viewportHandler);
+                // Set initial height
+                this._viewportHandler();
+            }
+
             // Focus input after transition
             setTimeout(() => {
                 this.$input.focus();
@@ -524,21 +536,28 @@
          */
         deactivateMobileMode() {
             if (!this.isMobileMode) return;
-            
+
             this.isMobileMode = false;
-            
-            // Remove mobile class
+
+            // Remove mobile class and reset inline height
             this.$wrapper.removeClass('wcas-mobile-active');
-            
+            this.$wrapper[0].style.height = '';
+
+            // Remove visualViewport listener
+            if (window.visualViewport && this._viewportHandler) {
+                window.visualViewport.removeEventListener('resize', this._viewportHandler);
+                this._viewportHandler = null;
+            }
+
             // Hide preview if visible
             this.hideMobilePreview();
-            
+
             // Unlock body scroll
             unlockBodyScroll();
-            
+
             // Blur input
             this.$input.blur();
-            
+
             // Restore scroll position
             window.scrollTo(0, this.originalScrollPosition);
         }

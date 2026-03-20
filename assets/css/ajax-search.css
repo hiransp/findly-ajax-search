@@ -841,6 +841,75 @@
    ============================================ */
 @media (max-width: 768px) {
 
+    /* Search wrapper fills available width on mobile */
+    .wcas-wrapper {
+        max-width: none;
+        width: 100%;
+    }
+
+    /* Slightly smaller search box padding for mobile */
+    .wcas-search-box {
+        padding: 0 var(--wcas-spacing-sm);
+        min-height: 48px;
+    }
+
+    .wcas-search-input {
+        padding: 10px var(--wcas-spacing-sm);
+    }
+
+    /* Results dropdown — full-width and better sized before overlay activates */
+    .wcas-results-wrapper {
+        left: calc(-1 * var(--wcas-spacing-sm));
+        right: calc(-1 * var(--wcas-spacing-sm));
+        border-radius: 0 0 var(--wcas-radius-md) var(--wcas-radius-md);
+    }
+
+    /* Single-column layout: hide preview panel on mobile */
+    .wcas-results-container {
+        flex-direction: column;
+        max-height: 60vh;
+    }
+
+    .wcas-results-list {
+        min-width: auto;
+        border-right: none;
+    }
+
+    .wcas-preview-panel {
+        display: none;
+    }
+
+    /* Product items — tighter layout for mobile */
+    .wcas-product-item a {
+        gap: 10px;
+        padding: var(--wcas-spacing-sm) var(--wcas-spacing-md);
+        min-height: 64px;
+    }
+
+    .wcas-product-thumb {
+        width: 48px;
+        height: 48px;
+    }
+
+    .wcas-product-name {
+        font-size: 14px;
+    }
+
+    .wcas-product-desc {
+        -webkit-line-clamp: 1;
+        font-size: 12px;
+    }
+
+    .wcas-product-price {
+        font-size: 14px;
+    }
+
+    /* Section headers — smaller on mobile */
+    .wcas-section-header {
+        font-size: 10px;
+        padding: var(--wcas-spacing-xs) var(--wcas-spacing-md);
+    }
+
     /* Mobile overlay mode */
     .wcas-wrapper.wcas-mobile-active {
         position: fixed;
@@ -868,6 +937,12 @@
         border-top: none;
         padding: var(--wcas-spacing-sm) var(--wcas-spacing-md);
         flex-shrink: 0;
+        min-height: 56px;
+    }
+
+    .wcas-mobile-active .wcas-search-input {
+        font-size: 17px;
+        padding: 14px var(--wcas-spacing-sm);
     }
 
     /* Mobile back button */
@@ -1003,13 +1078,21 @@
         flex-shrink: 0;
     }
 
-    /* Larger touch targets for mobile */
+    /* Larger touch targets in overlay mode */
     .wcas-mobile-active .wcas-product-item a {
         padding: var(--wcas-spacing-md);
+        min-height: 72px;
     }
 
     .wcas-mobile-active .wcas-term-item a {
         padding: var(--wcas-spacing-md);
+        min-height: 48px;
+        font-size: 15px;
+    }
+
+    .wcas-mobile-active .wcas-history-item {
+        padding: var(--wcas-spacing-sm) var(--wcas-spacing-md);
+        min-height: 48px;
     }
 
     /* Mobile quantity controls - larger */
@@ -1040,6 +1123,21 @@
         max-height: 150px;
     }
 
+    /* See-all link — full width on mobile */
+    .wcas-see-all a {
+        width: 100%;
+        padding: var(--wcas-spacing-md);
+    }
+
+    /* No-results state — less padding on mobile */
+    .wcas-no-results {
+        padding: var(--wcas-spacing-md);
+    }
+
+    .wcas-no-results::before {
+        font-size: 24px;
+    }
+
     /* Body scroll lock when overlay is active */
     body.wcas-overlay-active {
         overflow: hidden;
@@ -1052,16 +1150,43 @@
    Tablet Adjustments
    ============================================ */
 @media (min-width: 769px) and (max-width: 1024px) {
+    .wcas-wrapper {
+        max-width: 100%;
+    }
+
     .wcas-results-container {
         max-height: 450px;
     }
 
     .wcas-preview-panel {
-        width: 280px;
+        width: 260px;
     }
 
     .wcas-results-list {
-        min-width: 250px;
+        min-width: 240px;
+    }
+
+    .wcas-preview-image img {
+        max-height: 160px;
+    }
+
+    .wcas-preview-title {
+        font-size: 16px;
+    }
+
+    .wcas-preview-price {
+        font-size: 18px;
+    }
+}
+
+/* Narrow tablets — hide preview, single-column results */
+@media (min-width: 769px) and (max-width: 860px) {
+    .wcas-preview-panel {
+        display: none;
+    }
+
+    .wcas-results-list {
+        border-right: none;
     }
 }
 
@@ -1069,17 +1194,40 @@
    Small Mobile (< 375px)
    ============================================ */
 @media (max-width: 374px) {
-    .wcas-mobile-active .wcas-product-thumb {
-        width: 48px;
-        height: 48px;
+    .wcas-search-box {
+        padding: 0 var(--wcas-spacing-xs);
     }
 
-    .wcas-mobile-active .wcas-product-info {
-        font-size: 14px;
+    .wcas-search-input {
+        font-size: 15px;
+        padding: 8px var(--wcas-spacing-xs);
     }
 
-    .wcas-mobile-active .wcas-product-desc {
+    .wcas-product-item a {
+        gap: 8px;
+        padding: var(--wcas-spacing-xs) var(--wcas-spacing-sm);
+    }
+
+    .wcas-product-thumb {
+        width: 40px;
+        height: 40px;
+    }
+
+    .wcas-product-name {
+        font-size: 13px;
+    }
+
+    .wcas-product-desc {
         display: none;
+    }
+
+    .wcas-product-sku,
+    .wcas-matched-field {
+        font-size: 11px;
+    }
+
+    .wcas-product-price {
+        font-size: 13px;
     }
 
     .wcas-mobile-active .wcas-preview-cart {
