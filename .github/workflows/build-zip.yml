@@ -9,7 +9,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Build zip (exclude dev files via .distignore)
         run: |
@@ -18,7 +18,7 @@ jobs:
           cd build && zip -r ../wc-custom-ajax-search.zip wc-custom-ajax-search/
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: wc-custom-ajax-search
           path: wc-custom-ajax-search.zip
