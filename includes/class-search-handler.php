@@ -40,6 +40,8 @@ class WCAS_Search_Handler {
         // Register AJAX handlers
         add_action('wp_ajax_wcas_search', array($this, 'handle_search'));
         add_action('wp_ajax_nopriv_wcas_search', array($this, 'handle_search'));
+        add_action('wp_ajax_wcas_add_to_cart', array($this, 'handle_add_to_cart'));
+        add_action('wp_ajax_nopriv_wcas_add_to_cart', array($this, 'handle_add_to_cart'));
 
         // Invalidate search cache when products change
         add_action('woocommerce_update_product', array($this, 'flush_search_cache'));
@@ -860,5 +862,54 @@ class WCAS_Search_Handler {
             '<strong>$1</strong>',
             $escaped_text
         );
+    }
+
+    /**
+     * Handle AJAX add to cart
+     */
+    public function handle_add_to_cart() {
+        check_ajax_referer('wcas_search_nonce', 'nonce');
+
+        $product_id = absint($_POST['product_id'] ?? 0);
+        $quantity   = max(1, absint($_POST['quantity'] ?? 1));
+
+        if (!$product_id) {
+            wp_send_json_error(array('message' => __('Invalid product.', 'wc-custom-ajax-search')));
+        }
+
+        $product = wc_get_product($product_id);
+        if (!$product) {
+            wp_send_json_error(array('message' => __('Product not found.', 'wc-custom-ajax-search')));
+        }
+
+        if (!$product->is_type('simple')) {
+            wp_send_json_error(array(
+                'message'     => __('Please select options on the product page.', 'wc-custom-ajax-search'),
+                'product_url' => $product->get_permalink(),
+            ));
+        }
+
+        if (!$product->is_purchasable() || !$product->is_in_stock()) {
+            wp_send_json_error(array('message' => __('This product cannot be added to cart.', 'wc-custom-ajax-search')));
+        }
+
+        // Ensure cart session is initialized
+        if (is_null(WC()->cart)) {
+            wc_load_cart();
+        }
+
+        $cart_item_key = WC()->cart->add_to_cart($product_id, $quantity);
+
+        if (!$cart_item_key) {
+            wp_send_json_error(array('message' => __('Could not add to cart.', 'wc-custom-ajax-search')));
+        }
+
+        do_action('woocommerce_ajax_added_to_cart', $product_id);
+
+        wp_send_json(array(
+            'success'   => true,
+            'fragments' => apply_filters('woocommerce_add_to_cart_fragments', array()),
+            'cart_hash' => WC()->cart->get_cart_hash(),
+        ));
     }
 }
