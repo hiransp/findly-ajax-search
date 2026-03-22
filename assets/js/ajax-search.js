@@ -17,8 +17,6 @@
     // Constants
     // ==========================================
     const MAX_SEARCH_LENGTH = 100;
-    const MOBILE_BREAKPOINT = 768;
-    const SWIPE_THRESHOLD = 50;
     // IMPORTANT: No global (g) flag — using g with test() causes lastIndex
     // to advance, making every second call return false (a known JS bug pattern).
     const DANGEROUS_PATTERNS = [
@@ -61,13 +59,6 @@
                 setTimeout(() => inThrottle = false, limit);
             }
         };
-    }
-
-    /**
-     * Check if device is mobile
-     */
-    function isMobile() {
-        return window.innerWidth <= MOBILE_BREAKPOINT;
     }
 
     /**
@@ -127,111 +118,6 @@
         sanitized = $('<textarea/>').html(sanitized).text();
 
         return sanitized;
-    }
-
-    /**
-     * Lock body scroll (for mobile overlay)
-     */
-    function lockBodyScroll() {
-        const scrollY = window.scrollY;
-        document.body.style.position = 'fixed';
-        document.body.style.top = `-${scrollY}px`;
-        document.body.style.width = '100%';
-        document.body.classList.add('wcas-overlay-active');
-    }
-
-    /**
-     * Unlock body scroll
-     */
-    function unlockBodyScroll() {
-        const scrollY = document.body.style.top;
-        document.body.style.position = '';
-        document.body.style.top = '';
-        document.body.style.width = '';
-        document.body.classList.remove('wcas-overlay-active');
-        window.scrollTo(0, parseInt(scrollY || '0') * -1);
-    }
-
-    // ==========================================
-    // Touch Gesture Handler
-    // ==========================================
-    class TouchGesture {
-        constructor(element, callbacks = {}) {
-            this.element = element;
-            this.callbacks = callbacks;
-            this.startY = 0;
-            this.startX = 0;
-            this.currentY = 0;
-            this.currentX = 0;
-            this.isDragging = false;
-            
-            this.bindEvents();
-        }
-
-        bindEvents() {
-            this.element.addEventListener('touchstart', this.onTouchStart.bind(this), { passive: true });
-            this.element.addEventListener('touchmove', this.onTouchMove.bind(this), { passive: false });
-            this.element.addEventListener('touchend', this.onTouchEnd.bind(this), { passive: true });
-        }
-
-        onTouchStart(e) {
-            this.startY = e.touches[0].clientY;
-            this.startX = e.touches[0].clientX;
-            this.isDragging = true;
-            
-            if (this.callbacks.onStart) {
-                this.callbacks.onStart(e);
-            }
-        }
-
-        onTouchMove(e) {
-            if (!this.isDragging) return;
-            
-            this.currentY = e.touches[0].clientY;
-            this.currentX = e.touches[0].clientX;
-            
-            const deltaY = this.currentY - this.startY;
-            const deltaX = this.currentX - this.startX;
-            
-            if (this.callbacks.onMove) {
-                this.callbacks.onMove(e, deltaX, deltaY);
-            }
-        }
-
-        onTouchEnd(e) {
-            if (!this.isDragging) return;
-            this.isDragging = false;
-            
-            const deltaY = this.currentY - this.startY;
-            const deltaX = this.currentX - this.startX;
-            
-            // Detect swipe direction
-            if (Math.abs(deltaY) > SWIPE_THRESHOLD) {
-                if (deltaY > 0 && this.callbacks.onSwipeDown) {
-                    this.callbacks.onSwipeDown(e, deltaY);
-                } else if (deltaY < 0 && this.callbacks.onSwipeUp) {
-                    this.callbacks.onSwipeUp(e, Math.abs(deltaY));
-                }
-            }
-            
-            if (Math.abs(deltaX) > SWIPE_THRESHOLD) {
-                if (deltaX > 0 && this.callbacks.onSwipeRight) {
-                    this.callbacks.onSwipeRight(e, deltaX);
-                } else if (deltaX < 0 && this.callbacks.onSwipeLeft) {
-                    this.callbacks.onSwipeLeft(e, Math.abs(deltaX));
-                }
-            }
-            
-            if (this.callbacks.onEnd) {
-                this.callbacks.onEnd(e, deltaX, deltaY);
-            }
-        }
-
-        destroy() {
-            this.element.removeEventListener('touchstart', this.onTouchStart);
-            this.element.removeEventListener('touchmove', this.onTouchMove);
-            this.element.removeEventListener('touchend', this.onTouchEnd);
-        }
     }
 
     // ==========================================
@@ -309,7 +195,6 @@
         constructor($wrapper) {
             this.$wrapper = $wrapper;
             this.$input = $wrapper.find('.wcas-search-input');
-            this.$searchBox = $wrapper.find('.wcas-search-box');
             this.$resultsWrapper = $wrapper.find('.wcas-results-wrapper');
             this.$resultsList = $wrapper.find('.wcas-results-list');
             this.$previewPanel = $wrapper.find('.wcas-preview-panel');
@@ -321,9 +206,6 @@
             this.products = [];
             this.lastSearchTime = 0;
             this.minRequestInterval = 100;
-            this.isMobileMode = false;
-            this.previewGesture = null;
-            this.originalScrollPosition = 0;
             this.showingHistory = false;
 
             // Search history
@@ -335,9 +217,6 @@
         }
 
         init() {
-            // Add mobile UI elements
-            this.addMobileElements();
-            
             // Set max length
             this.$input.attr('maxlength', MAX_SEARCH_LENGTH);
             
@@ -386,12 +265,8 @@
                 }, 0);
             });
 
-            // Focus events - activate mobile mode and show history
+            // Focus events - show history
             this.$input.on('focus', () => {
-                if (isMobile()) {
-                    this.activateMobileMode();
-                }
-
                 const val = this.$input.val().trim();
                 if (val.length >= wcasConfig.minChars && this.$resultsList.children().length > 0 && !this.showingHistory) {
                     this.showResults();
@@ -412,19 +287,11 @@
                 }
             });
 
-            // Mobile back button
-            this.$wrapper.on('click touchend', '.wcas-mobile-back', (e) => {
-                e.preventDefault();
-                this.deactivateMobileMode();
-            });
-
             // Keyboard navigation
             this.$input.on('keydown', (e) => this.handleKeyboard(e));
 
-            // Close on outside click (desktop only)
+            // Close on outside click
             $(document).on('click', (e) => {
-                if (this.isMobileMode) return;
-                
                 if (!this.$wrapper.is(e.target) && this.$wrapper.has(e.target).length === 0) {
                     this.hideResults();
                 }
@@ -433,164 +300,10 @@
             // Close on escape
             $(document).on('keydown', (e) => {
                 if (e.key === 'Escape') {
-                    if (this.isMobileMode) {
-                        this.deactivateMobileMode();
-                    } else {
-                        this.hideResults();
-                        this.$input.blur();
-                    }
+                    this.hideResults();
+                    this.$input.blur();
                 }
             });
-
-            // Handle resize
-            const handleResize = throttle(() => {
-                if (this.isMobileMode && !isMobile()) {
-                    this.deactivateMobileMode();
-                }
-            }, 200);
-            
-            $(window).on('resize', handleResize);
-
-            // Handle back button (mobile)
-            window.addEventListener('popstate', () => {
-                if (this.isMobileMode) {
-                    this.deactivateMobileMode();
-                }
-            });
-        }
-
-        /**
-         * Add mobile-specific UI elements
-         */
-        addMobileElements() {
-            // Add back button to search box
-            const $backBtn = $(`
-                <span class="wcas-mobile-back" aria-label="${wcasConfig.i18n.back || 'Back'}">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M19 12H5"></path>
-                        <path d="m12 19-7-7 7-7"></path>
-                    </svg>
-                </span>
-            `);
-            this.$searchBox.prepend($backBtn);
-            
-            // Add mobile header to preview panel
-            const $previewHeader = $(`
-                <div class="wcas-preview-mobile-header">
-                    <div class="wcas-preview-drag-handle"></div>
-                    <span class="wcas-preview-close" aria-label="${wcasConfig.i18n.close || 'Close'}">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M18 6 6 18"></path>
-                            <path d="m6 6 12 12"></path>
-                        </svg>
-                    </span>
-                </div>
-            `);
-            this.$previewPanel.prepend($previewHeader);
-            
-            // Preview close button
-            this.$previewPanel.on('click touchend', '.wcas-preview-close', (e) => {
-                e.preventDefault();
-                this.hideMobilePreview();
-            });
-        }
-
-        /**
-         * Activate mobile full-screen mode
-         */
-        activateMobileMode() {
-            if (this.isMobileMode) return;
-
-            this.isMobileMode = true;
-            this.originalScrollPosition = window.scrollY;
-
-            // Add mobile class
-            this.$wrapper.addClass('wcas-mobile-active');
-
-            // Lock body scroll
-            lockBodyScroll();
-
-            // Push history state for back button support
-            history.pushState({ wcasSearch: true }, '');
-
-            // Listen for virtual keyboard resize via visualViewport API
-            if (window.visualViewport) {
-                this._viewportHandler = () => {
-                    if (!this.isMobileMode) return;
-                    const vvh = window.visualViewport.height;
-                    this.$wrapper[0].style.height = vvh + 'px';
-                };
-                window.visualViewport.addEventListener('resize', this._viewportHandler);
-                // Set initial height
-                this._viewportHandler();
-            }
-
-            // Focus input after transition
-            setTimeout(() => {
-                this.$input.focus();
-            }, 100);
-        }
-
-        /**
-         * Deactivate mobile mode
-         */
-        deactivateMobileMode() {
-            if (!this.isMobileMode) return;
-
-            this.isMobileMode = false;
-
-            // Remove mobile class and reset inline height
-            this.$wrapper.removeClass('wcas-mobile-active');
-            this.$wrapper[0].style.height = '';
-
-            // Remove visualViewport listener
-            if (window.visualViewport && this._viewportHandler) {
-                window.visualViewport.removeEventListener('resize', this._viewportHandler);
-                this._viewportHandler = null;
-            }
-
-            // Hide preview if visible
-            this.hideMobilePreview();
-
-            // Unlock body scroll
-            unlockBodyScroll();
-
-            // Blur input
-            this.$input.blur();
-
-            // Restore scroll position
-            window.scrollTo(0, this.originalScrollPosition);
-        }
-
-        /**
-         * Show mobile preview panel
-         */
-        showMobilePreview(product) {
-            this.showPreview(product);
-            this.$previewPanel.addClass('wcas-preview-visible');
-            
-            // Setup swipe to close gesture
-            if (isTouchDevice() && !this.previewGesture) {
-                this.previewGesture = new TouchGesture(this.$previewPanel[0], {
-                    onSwipeDown: (e, delta) => {
-                        if (delta > 100) {
-                            this.hideMobilePreview();
-                        }
-                    }
-                });
-            }
-        }
-
-        /**
-         * Hide mobile preview panel
-         */
-        hideMobilePreview() {
-            this.$previewPanel.removeClass('wcas-preview-visible');
-            
-            if (this.previewGesture) {
-                this.previewGesture.destroy();
-                this.previewGesture = null;
-            }
         }
 
         performSearch(term) {
@@ -777,46 +490,18 @@
                                 <span class="wcas-product-desc">${product.description}</span>
                             </span>
                             <span class="wcas-product-price">${product.price}</span>
-                            <span class="wcas-product-expand">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="m9 18 6-6-6-6"/>
-                                </svg>
-                            </span>
                         </a>
                     </li>
                 `);
 
-                // Desktop: hover to show preview
+                // Hover to show preview (desktop only)
                 if (!isTouchDevice()) {
                     $item.on('mouseenter', () => {
                         this.showPreview(product);
-                        // Clear keyboard selection on mouse interaction
                         this.selectedIndex = -1;
                         this.getNavigableItems().removeClass('selected');
                     });
                 }
-
-                // Mobile: tap expand button to show preview
-                $item.find('.wcas-product-expand').on('click touchend', (e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    // Find the correct global index for this item
-                    this.selectedIndex = this.getNavigableItems().index($item);
-                    this.updateSelection();
-                    
-                    if (this.isMobileMode) {
-                        this.showMobilePreview(product);
-                    } else {
-                        this.showPreview(product);
-                    }
-                });
-
-                // Mobile: tap on product to navigate (unless tapping expand)
-                $item.find('a').on('click', (e) => {
-                    if (this.isMobileMode && $(e.target).closest('.wcas-product-expand').length) {
-                        e.preventDefault();
-                    }
-                });
 
                 $list.append($item);
             });
@@ -871,12 +556,7 @@
                 </div>
             `;
 
-            // Keep the mobile header if it exists
-            const $header = this.$previewPanel.find('.wcas-preview-mobile-header').detach();
             this.$previewPanel.html(previewHtml);
-            if ($header.length) {
-                this.$previewPanel.prepend($header);
-            }
 
             // Quantity buttons
             this.$previewPanel.find('.wcas-qty-minus').on('click touchend', function(e) {
@@ -943,18 +623,11 @@
         }
 
         resetPreview() {
-            // Keep the mobile header
-            const $header = this.$previewPanel.find('.wcas-preview-mobile-header').detach();
-            
             this.$previewPanel.html(`
                 <div class="wcas-preview-placeholder">
                     <span>${wcasConfig.i18n.hoverPreview || 'Hover over a product to see details'}</span>
                 </div>
             `);
-            
-            if ($header.length) {
-                this.$previewPanel.prepend($header);
-            }
         }
 
         showNoResults(suggestions) {
@@ -1039,7 +712,6 @@
             this.$resultsWrapper.removeClass('active');
             this.selectedIndex = -1;
             this.showingHistory = false;
-            this.hideMobilePreview();
         }
 
         /**

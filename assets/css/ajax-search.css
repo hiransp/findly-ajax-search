@@ -447,13 +447,6 @@
     color: var(--wcas-error);
 }
 
-/* Mobile-only elements — hidden on desktop */
-.wcas-mobile-back,
-.wcas-preview-mobile-header,
-.wcas-product-expand {
-    display: none;
-}
-
 /* ============================================
    Preview Panel
    ============================================ */
@@ -837,7 +830,7 @@
 }
 
 /* ============================================
-   Mobile Full-Screen Overlay
+   Mobile Styles
    ============================================ */
 @media (max-width: 768px) {
 
@@ -847,7 +840,6 @@
         width: 100%;
     }
 
-    /* Slightly smaller search box padding for mobile */
     .wcas-search-box {
         padding: 0 var(--wcas-spacing-sm);
         min-height: 48px;
@@ -857,14 +849,7 @@
         padding: 10px var(--wcas-spacing-sm);
     }
 
-    /* Results dropdown — full-width and better sized before overlay activates */
-    .wcas-results-wrapper {
-        left: calc(-1 * var(--wcas-spacing-sm));
-        right: calc(-1 * var(--wcas-spacing-sm));
-        border-radius: 0 0 var(--wcas-radius-md) var(--wcas-radius-md);
-    }
-
-    /* Single-column layout: hide preview panel on mobile */
+    /* Results dropdown — single-column, no preview panel */
     .wcas-results-container {
         flex-direction: column;
         max-height: 60vh;
@@ -879,7 +864,7 @@
         display: none;
     }
 
-    /* Product items — tighter layout for mobile */
+    /* Product items — tighter layout */
     .wcas-product-item a {
         gap: 10px;
         padding: var(--wcas-spacing-sm) var(--wcas-spacing-md);
@@ -904,245 +889,22 @@
         font-size: 14px;
     }
 
-    /* Section headers — smaller on mobile */
     .wcas-section-header {
         font-size: 10px;
         padding: var(--wcas-spacing-xs) var(--wcas-spacing-md);
     }
 
-    /* Mobile overlay mode */
-    .wcas-wrapper.wcas-mobile-active {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        max-width: none;
-        z-index: var(--wcas-z-overlay);
-        background: var(--wcas-bg);
-        padding: 0;
-        padding-top: env(safe-area-inset-top);
-        padding-bottom: env(safe-area-inset-bottom);
-        padding-left: env(safe-area-inset-left);
-        padding-right: env(safe-area-inset-right);
-        display: flex;
-        flex-direction: column;
-    }
-
-    /* Mobile header with search */
-    .wcas-mobile-active .wcas-search-box {
-        border-radius: 0;
-        border-left: none;
-        border-right: none;
-        border-top: none;
-        padding: var(--wcas-spacing-sm) var(--wcas-spacing-md);
-        flex-shrink: 0;
-        min-height: 56px;
-    }
-
-    .wcas-mobile-active .wcas-search-input {
-        font-size: 17px;
-        padding: 14px var(--wcas-spacing-sm);
-    }
-
-    /* Mobile back button */
-    .wcas-mobile-back {
-        display: none;
-        width: var(--wcas-touch-target);
-        height: var(--wcas-touch-target);
-        align-items: center;
-        justify-content: center;
-        color: var(--wcas-text);
-        cursor: pointer;
-        margin-left: calc(var(--wcas-spacing-md) * -1);
-        flex-shrink: 0;
-        -webkit-tap-highlight-color: transparent;
-    }
-
-    .wcas-mobile-active .wcas-mobile-back {
-        display: flex;
-    }
-
-    /* Results in mobile overlay */
-    .wcas-mobile-active .wcas-results-wrapper {
-        position: relative;
-        top: auto;
-        left: auto;
-        right: auto;
-        margin: 0;
-        border: none;
-        border-radius: 0;
-        box-shadow: none;
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        transform: none;
-        opacity: 1;
-    }
-
-    .wcas-mobile-active .wcas-results-wrapper.active {
-        display: flex;
-    }
-
-    .wcas-mobile-active .wcas-results-container {
-        flex-direction: column;
-        flex: 1;
-        max-height: none;
-    }
-
-    .wcas-mobile-active .wcas-results-list {
-        flex: 1;
-        min-width: auto;
-        border-right: none;
-        border-bottom: none;
-        max-height: none;
-    }
-
-    /* Hide preview panel on mobile by default */
-    .wcas-mobile-active .wcas-preview-panel {
-        display: none;
-    }
-
-    /* Mobile product preview modal */
-    .wcas-mobile-active .wcas-preview-panel.wcas-preview-visible {
-        display: flex;
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        width: 100%;
-        max-height: 70vh;
-        z-index: var(--wcas-z-modal);
-        border-radius: var(--wcas-radius-lg) var(--wcas-radius-lg) 0 0;
-        box-shadow: 0 -4px 20px var(--wcas-shadow-heavy);
-        animation: wcas-slide-up var(--wcas-transition-slow);
-        padding-bottom: env(safe-area-inset-bottom);
-    }
-
-    @keyframes wcas-slide-up {
-        from {
-            transform: translateY(100%);
-        }
-
-        to {
-            transform: translateY(0);
-        }
-    }
-
-    /* Mobile preview header with close */
-    .wcas-preview-mobile-header {
-        display: none;
-        align-items: center;
-        justify-content: space-between;
-        padding: var(--wcas-spacing-md);
-        border-bottom: 1px solid var(--wcas-border-light);
-        position: sticky;
-        top: 0;
-        background: var(--wcas-bg-secondary);
-        z-index: 1;
-    }
-
-    .wcas-mobile-active .wcas-preview-mobile-header {
-        display: flex;
-    }
-
-    .wcas-preview-mobile-header .wcas-preview-close {
-        width: var(--wcas-touch-target);
-        height: var(--wcas-touch-target);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        color: var(--wcas-text-light);
-        border-radius: 50%;
-        background: var(--wcas-bg-hover);
-        -webkit-tap-highlight-color: transparent;
-    }
-
-    .wcas-preview-drag-handle {
-        width: 40px;
-        height: 4px;
-        background: var(--wcas-border);
-        border-radius: 2px;
-        margin: 0 auto var(--wcas-spacing-sm);
-    }
-
-    /* Show expand button on mobile product items */
-    .wcas-mobile-active .wcas-product-expand {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 32px;
-        height: 32px;
-        color: var(--wcas-text-muted);
-        flex-shrink: 0;
-    }
-
-    /* Larger touch targets in overlay mode */
-    .wcas-mobile-active .wcas-product-item a {
-        padding: var(--wcas-spacing-md);
-        min-height: 72px;
-    }
-
-    .wcas-mobile-active .wcas-term-item a {
-        padding: var(--wcas-spacing-md);
-        min-height: 48px;
-        font-size: 15px;
-    }
-
-    .wcas-mobile-active .wcas-history-item {
-        padding: var(--wcas-spacing-sm) var(--wcas-spacing-md);
-        min-height: 48px;
-    }
-
-    /* Mobile quantity controls - larger */
-    .wcas-mobile-active .wcas-qty-btn {
-        width: 48px;
-        height: 48px;
-        font-size: 20px;
-    }
-
-    .wcas-mobile-active .wcas-qty-input {
-        width: 60px;
-        height: 48px;
-        font-size: 18px;
-    }
-
-    .wcas-mobile-active .wcas-add-to-cart,
-    .wcas-mobile-active .wcas-view-product {
-        min-height: 48px;
-        font-size: 16px;
-    }
-
-    /* Mobile preview content adjustments */
-    .wcas-mobile-active .wcas-preview-content {
-        padding: var(--wcas-spacing-md);
-    }
-
-    .wcas-mobile-active .wcas-preview-image img {
-        max-height: 150px;
-    }
-
-    /* See-all link — full width on mobile */
     .wcas-see-all a {
         width: 100%;
         padding: var(--wcas-spacing-md);
     }
 
-    /* No-results state — less padding on mobile */
     .wcas-no-results {
         padding: var(--wcas-spacing-md);
     }
 
     .wcas-no-results::before {
         font-size: 24px;
-    }
-
-    /* Body scroll lock when overlay is active */
-    body.wcas-overlay-active {
-        overflow: hidden;
-        position: fixed;
-        width: 100%;
     }
 }
 
@@ -1228,40 +990,6 @@
 
     .wcas-product-price {
         font-size: 13px;
-    }
-
-    .wcas-mobile-active .wcas-preview-cart {
-        flex-direction: column;
-    }
-
-    .wcas-mobile-active .wcas-qty-wrapper {
-        width: 100%;
-        justify-content: center;
-    }
-
-    .wcas-mobile-active .wcas-add-to-cart,
-    .wcas-mobile-active .wcas-view-product {
-        width: 100%;
-    }
-}
-
-/* ============================================
-   Landscape Mobile
-   ============================================ */
-@media (max-width: 768px) and (orientation: landscape) {
-    .wcas-mobile-active .wcas-preview-panel.wcas-preview-visible {
-        max-height: 80vh;
-        flex-direction: row;
-    }
-
-    .wcas-mobile-active .wcas-preview-image {
-        flex-shrink: 0;
-        width: 40%;
-    }
-
-    .wcas-mobile-active .wcas-preview-details {
-        flex: 1;
-        overflow-y: auto;
     }
 }
 
