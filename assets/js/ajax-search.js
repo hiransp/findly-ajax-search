@@ -908,7 +908,8 @@
                 url: wcasConfig.ajaxUrl,
                 type: 'POST',
                 data: {
-                    action: 'woocommerce_ajax_add_to_cart',
+                    action: 'wcas_add_to_cart',
+                    nonce: wcasConfig.nonce,
                     product_id: productId,
                     quantity: quantity
                 },

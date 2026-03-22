@@ -178,6 +178,48 @@ function wcas_maybe_enqueue_assets() {
 add_action('wp_footer', 'wcas_maybe_enqueue_assets', 1);
 
 /**
+ * AJAX add to cart handler
+ */
+function wcas_ajax_add_to_cart() {
+    check_ajax_referer('wcas_search_nonce', 'nonce');
+
+    $product_id = absint($_POST['product_id'] ?? 0);
+    $quantity = absint($_POST['quantity'] ?? 1);
+
+    if (!$product_id) {
+        wp_send_json_error(array('message' => __('Invalid product.', 'wc-custom-ajax-search')));
+    }
+
+    $product = wc_get_product($product_id);
+    if (!$product || !$product->is_purchasable() || !$product->is_in_stock()) {
+        wp_send_json_error(array('message' => __('This product cannot be added to cart.', 'wc-custom-ajax-search')));
+    }
+
+    if ($product->is_type('simple')) {
+        $cart_item_key = WC()->cart->add_to_cart($product_id, $quantity);
+
+        if ($cart_item_key) {
+            // Return updated cart fragments so the theme's cart widget updates
+            ob_start();
+            wc_setcookie('woocommerce_items_in_cart', count(WC()->cart->get_cart()));
+            WC_AJAX::get_refreshed_fragments();
+        } else {
+            wp_send_json_error(array('message' => __('Could not add to cart.', 'wc-custom-ajax-search')));
+        }
+    } else {
+        // Non-simple products — redirect to product page
+        wp_send_json(array(
+            'error' => true,
+            'product_url' => $product->get_permalink(),
+        ));
+    }
+
+    wp_die();
+}
+add_action('wp_ajax_wcas_add_to_cart', 'wcas_ajax_add_to_cart');
+add_action('wp_ajax_nopriv_wcas_add_to_cart', 'wcas_ajax_add_to_cart');
+
+/**
  * Plugin activation
  */
 function wcas_activate() {
