@@ -914,17 +914,23 @@
                     quantity: quantity
                 },
                 success: (response) => {
-                    if (response.error && response.product_url) {
-                        window.location = response.product_url;
-                    } else {
+                    if (response.success) {
+                        // Trigger WooCommerce event so theme cart widgets update
                         $(document.body).trigger('added_to_cart', [response.fragments, response.cart_hash, $button]);
                         $button.removeClass('loading').addClass('added');
                         $button.text(wcasConfig.i18n.added || 'Added!');
-                        
+
                         setTimeout(() => {
                             $button.removeClass('added');
                             $button.text(wcasConfig.i18n.addToCart);
                         }, 2000);
+                    } else {
+                        // Error — redirect to product page if provided
+                        if (response.data && response.data.product_url) {
+                            window.location = response.data.product_url;
+                        } else {
+                            $button.removeClass('loading');
+                        }
                     }
                 },
                 error: () => {

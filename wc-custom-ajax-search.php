@@ -1,4 +1,5 @@
 <?php
+
 /**
  * WC Custom AJAX Search
  *
@@ -10,17 +11,12 @@
  * Description:       Live AJAX product search for WooCommerce with ACF custom fields, custom taxonomies, product preview panel, and full mobile optimization.
  * Version:           1.0.0
  * Author:            Hiran
- * Author URI:        https://github.com/hiran
+ * Author URI:        https://github.com/hiransp
  * License:           GPL-2.0-or-later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain:       wc-custom-ajax-search
  * Domain Path:       /languages
- * Requires at least: 5.8
- * Tested up to:      6.7
- * Requires PHP:      7.4
  * Requires Plugins:  woocommerce
- * WC requires at least: 6.0
- * WC tested up to:   9.6
  */
 
 if (!defined('ABSPATH')) {
@@ -35,7 +31,8 @@ define('WCAS_PLUGIN_URL', plugin_dir_url(__FILE__));
 /**
  * Configuration - reads from admin settings, falls back to defaults
  */
-function wcas_get_config() {
+function wcas_get_config()
+{
     // Load settings class if not already loaded
     if (!class_exists('WCAS_Settings')) {
         require_once WCAS_PLUGIN_DIR . 'includes/class-settings.php';
@@ -82,15 +79,16 @@ function wcas_get_config() {
 /**
  * Initialize plugin
  */
-function wcas_init() {
+function wcas_init()
+{
     // Check if WooCommerce is active
     if (!class_exists('WooCommerce')) {
-        add_action('admin_notices', function() {
+        add_action('admin_notices', function () {
             echo '<div class="error"><p>' . __('WC Custom AJAX Search requires WooCommerce to be installed and active.', 'wc-custom-ajax-search') . '</p></div>';
         });
         return;
     }
-    
+
     // Load includes
     require_once WCAS_PLUGIN_DIR . 'includes/class-settings.php';
     require_once WCAS_PLUGIN_DIR . 'includes/class-search-handler.php';
@@ -112,7 +110,8 @@ add_action('plugins_loaded', 'wcas_init');
 /**
  * Register scripts and styles (does not enqueue yet)
  */
-function wcas_register_assets() {
+function wcas_register_assets()
+{
     wp_register_style(
         'wcas-styles',
         WCAS_PLUGIN_URL . 'assets/css/ajax-search.css',
@@ -134,7 +133,8 @@ add_action('wp_enqueue_scripts', 'wcas_register_assets');
  * Enqueue assets only on pages where the shortcode is actually used.
  * Runs at wp_footer so the shortcode has already been parsed by then.
  */
-function wcas_maybe_enqueue_assets() {
+function wcas_maybe_enqueue_assets()
+{
     if (!class_exists('WCAS_Shortcode') || !WCAS_Shortcode::$enqueue_assets) {
         return;
     }
@@ -178,51 +178,10 @@ function wcas_maybe_enqueue_assets() {
 add_action('wp_footer', 'wcas_maybe_enqueue_assets', 1);
 
 /**
- * AJAX add to cart handler
- */
-function wcas_ajax_add_to_cart() {
-    check_ajax_referer('wcas_search_nonce', 'nonce');
-
-    $product_id = absint($_POST['product_id'] ?? 0);
-    $quantity = absint($_POST['quantity'] ?? 1);
-
-    if (!$product_id) {
-        wp_send_json_error(array('message' => __('Invalid product.', 'wc-custom-ajax-search')));
-    }
-
-    $product = wc_get_product($product_id);
-    if (!$product || !$product->is_purchasable() || !$product->is_in_stock()) {
-        wp_send_json_error(array('message' => __('This product cannot be added to cart.', 'wc-custom-ajax-search')));
-    }
-
-    if ($product->is_type('simple')) {
-        $cart_item_key = WC()->cart->add_to_cart($product_id, $quantity);
-
-        if ($cart_item_key) {
-            // Return updated cart fragments so the theme's cart widget updates
-            ob_start();
-            wc_setcookie('woocommerce_items_in_cart', count(WC()->cart->get_cart()));
-            WC_AJAX::get_refreshed_fragments();
-        } else {
-            wp_send_json_error(array('message' => __('Could not add to cart.', 'wc-custom-ajax-search')));
-        }
-    } else {
-        // Non-simple products — redirect to product page
-        wp_send_json(array(
-            'error' => true,
-            'product_url' => $product->get_permalink(),
-        ));
-    }
-
-    wp_die();
-}
-add_action('wp_ajax_wcas_add_to_cart', 'wcas_ajax_add_to_cart');
-add_action('wp_ajax_nopriv_wcas_add_to_cart', 'wcas_ajax_add_to_cart');
-
-/**
  * Plugin activation
  */
-function wcas_activate() {
+function wcas_activate()
+{
     // Activation tasks if needed
     flush_rewrite_rules();
 }
@@ -231,7 +190,8 @@ register_activation_hook(__FILE__, 'wcas_activate');
 /**
  * Plugin deactivation
  */
-function wcas_deactivate() {
+function wcas_deactivate()
+{
     flush_rewrite_rules();
 }
 register_deactivation_hook(__FILE__, 'wcas_deactivate');
