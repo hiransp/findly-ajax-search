@@ -449,7 +449,9 @@
     color: var(--wcas-error);
 }
 
-/* Mobile product expand button */
+/* Mobile-only elements — hidden on desktop */
+.wcas-mobile-back,
+.wcas-preview-mobile-header,
 .wcas-product-expand {
     display: none;
 }
