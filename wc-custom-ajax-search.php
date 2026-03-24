@@ -24,7 +24,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Plugin constants
-define('WCAS_VERSION', '1.0.0');
+define('WCAS_VERSION', '1.1.0');
 define('WCAS_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('WCAS_PLUGIN_URL', plugin_dir_url(__FILE__));
 
@@ -81,31 +81,34 @@ function wcas_get_config()
  */
 function wcas_init()
 {
-    // Check if WooCommerce is active
-    if (!class_exists('WooCommerce')) {
-        add_action('admin_notices', function () {
-            echo '<div class="error"><p>' . __('WC Custom AJAX Search requires WooCommerce to be installed and active.', 'wc-custom-ajax-search') . '</p></div>';
-        });
-        return;
-    }
-
-    // Load includes
+    // Load includes — always load so AJAX handlers are registered
     require_once WCAS_PLUGIN_DIR . 'includes/class-settings.php';
     require_once WCAS_PLUGIN_DIR . 'includes/class-search-handler.php';
     require_once WCAS_PLUGIN_DIR . 'includes/class-shortcode.php';
+
+    // Initialize search handler (registers AJAX hooks)
+    new WCAS_Search_Handler();
+
+    // Initialize shortcode
+    new WCAS_Shortcode();
 
     // Initialize settings (admin only)
     if (is_admin()) {
         new WCAS_Settings();
     }
-
-    // Initialize shortcode
-    new WCAS_Shortcode();
-
-    // Initialize search handler
-    new WCAS_Search_Handler();
 }
+
+function wcas_check_woocommerce()
+{
+    if (!class_exists('WooCommerce')) {
+        add_action('admin_notices', function () {
+            echo '<div class="error"><p>' . esc_html__('WC Custom AJAX Search requires WooCommerce to be installed and active.', 'wc-custom-ajax-search') . '</p></div>';
+        });
+    }
+}
+
 add_action('plugins_loaded', 'wcas_init');
+add_action('admin_init', 'wcas_check_woocommerce');
 
 /**
  * Register scripts and styles (does not enqueue yet)
