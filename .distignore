@@ -13,4 +13,5 @@ phpcs.xml
 .editorconfig
 .eslintrc
 .stylelintrc
+PRE_SUBMISSION.md
 *.zip
