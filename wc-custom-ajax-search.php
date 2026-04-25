@@ -16,7 +16,11 @@
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain:       wc-custom-ajax-search
  * Domain Path:       /languages
+ * Requires at least: 5.8
+ * Requires PHP:      7.4
  * Requires Plugins:  woocommerce
+ * WC requires at least: 6.0
+ * WC tested up to:   9.8
  */
 
 if (!defined('ABSPATH')) {
@@ -24,7 +28,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Plugin constants
-define('WCAS_VERSION', '1.1.0');
+define('WCAS_VERSION', '1.0.0');
 define('WCAS_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('WCAS_PLUGIN_URL', plugin_dir_url(__FILE__));
 
@@ -102,13 +106,33 @@ function wcas_check_woocommerce()
 {
     if (!class_exists('WooCommerce')) {
         add_action('admin_notices', function () {
-            echo '<div class="error"><p>' . esc_html__('WC Custom AJAX Search requires WooCommerce to be installed and active.', 'wc-custom-ajax-search') . '</p></div>';
+            echo '<div class="notice notice-error is-dismissible"><p>' . esc_html__('WC Custom AJAX Search requires WooCommerce to be installed and active.', 'wc-custom-ajax-search') . '</p></div>';
         });
     }
 }
 
+/**
+ * Load plugin text domain for translations
+ */
+function wcas_load_textdomain()
+{
+    load_plugin_textdomain('wc-custom-ajax-search', false, dirname(plugin_basename(__FILE__)) . '/languages');
+}
+
+/**
+ * Declare WooCommerce HPOS compatibility
+ */
+function wcas_declare_hpos_compatibility()
+{
+    if (class_exists('\Automattic\WooCommerce\Utilities\FeaturesUtil')) {
+        \Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility('custom_order_tables', __FILE__, true);
+    }
+}
+
 add_action('plugins_loaded', 'wcas_init');
+add_action('plugins_loaded', 'wcas_load_textdomain');
 add_action('admin_init', 'wcas_check_woocommerce');
+add_action('before_woocommerce_init', 'wcas_declare_hpos_compatibility');
 
 /**
  * Register scripts and styles (does not enqueue yet)

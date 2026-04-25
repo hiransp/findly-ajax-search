@@ -81,7 +81,7 @@ class WCAS_Search_Handler {
      */
     public function handle_search() {
         // 0. Enforce POST method only
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        if ( ! isset( $_SERVER['REQUEST_METHOD'] ) || 'POST' !== sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ) ) ) {
             wp_send_json_error(array('message' => 'Method not allowed'), 405);
             exit;
         }
@@ -870,8 +870,8 @@ class WCAS_Search_Handler {
     public function handle_add_to_cart() {
         check_ajax_referer('wcas_search_nonce', 'nonce');
 
-        $product_id = absint($_POST['product_id'] ?? 0);
-        $quantity   = max(1, absint($_POST['quantity'] ?? 1));
+        $product_id = isset( $_POST['product_id'] ) ? absint( wp_unslash( $_POST['product_id'] ) ) : 0;
+        $quantity   = isset( $_POST['quantity'] ) ? max( 1, absint( wp_unslash( $_POST['quantity'] ) ) ) : 1;
 
         if (!$product_id) {
             wp_send_json_error(array('message' => __('Invalid product.', 'wc-custom-ajax-search')));
