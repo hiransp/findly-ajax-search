@@ -1,8 +1,8 @@
-=== WC Custom AJAX Search ===
+=== Findly — AJAX Search for WooCommerce ===
 Contributors: hiran
 Tags: woocommerce, search, ajax, product search, live search
 Requires at least: 5.8
-Tested up to: 6.7
+Tested up to: 6.9
 Requires PHP: 7.4
 Stable tag: 1.0.0
 License: GPLv2 or later
@@ -12,7 +12,7 @@ Live AJAX product search for WooCommerce with custom fields, taxonomies, product
 
 == Description ==
 
-WC Custom AJAX Search adds a fast, live search box to your WooCommerce store. Results appear instantly as customers type, with grouped categories, tags, and products — plus a product preview panel on desktop.
+Findly adds a fast, live search box to your WooCommerce store. Results appear instantly as customers type, with grouped categories, tags, and products — plus a product preview panel on desktop.
 
 = Key Features =
 
@@ -55,7 +55,7 @@ The plugin uses CSS custom properties for easy theme integration. Override `--wc
 
 == Installation ==
 
-1. Upload the `wc-custom-ajax-search` folder to the `/wp-content/plugins/` directory, or install directly through the WordPress plugin screen.
+1. Upload the `findly-ajax-search` folder to the `/wp-content/plugins/` directory, or install directly through the WordPress plugin screen.
 2. Activate the plugin through the **Plugins** screen in WordPress.
 3. Go to **WooCommerce > AJAX Search** to configure your search settings.
 4. Add the shortcode `[wc_ajax_search]` to any page or post where you want the search box to appear.

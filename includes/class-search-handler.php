@@ -69,6 +69,7 @@ class WCAS_Search_Handler {
      */
     public function flush_search_cache() {
         global $wpdb;
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
         $wpdb->query(
             "DELETE FROM {$wpdb->options}
              WHERE option_name LIKE '_transient_wcas_r_%'
@@ -103,6 +104,7 @@ class WCAS_Search_Handler {
         
         // 3. Validate and sanitize search term
         $search_term = $this->sanitize_search_term(
+            // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- sanitized by sanitize_search_term()
             isset($_POST['search']) ? wp_unslash($_POST['search']) : ''
         );
         
@@ -270,6 +272,7 @@ class WCAS_Search_Handler {
         $now = time();
 
         // Atomic: try to increment if the transient exists and hasn't expired
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
         $updated = $wpdb->query($wpdb->prepare(
             "UPDATE {$wpdb->options}
              SET option_value = option_value + 1
@@ -345,8 +348,9 @@ class WCAS_Search_Handler {
      */
     private function log_suspicious_activity($data, $type) {
         // Always log security events to PHP error log
+        // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- intentional security logging
         error_log(sprintf(
-            '[WC AJAX Search] SECURITY — %s | Data: %s | IP: %s | URI: %s | Time: %s',
+            '[Findly AJAX Search] SECURITY — %s | Data: %s | IP: %s | URI: %s | Time: %s',
             $type,
             substr($data, 0, 100),
             $this->get_client_ip(),
@@ -402,6 +406,7 @@ class WCAS_Search_Handler {
         $escaped_like = '%' . $wpdb->esc_like($search_term) . '%';
         $limit = absint($this->config['max_terms_per_taxonomy']);
         
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- results cached via transient in handle_search()
         $terms = $wpdb->get_results($wpdb->prepare(
             "SELECT t.term_id, t.name, t.slug, tt.count
              FROM {$wpdb->terms} t
@@ -588,6 +593,7 @@ class WCAS_Search_Handler {
 
         $query_values[] = $limit;
 
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared -- $query built from safe table names; prepare() called with placeholders
         $product_ids = $wpdb->get_results($wpdb->prepare($query, $query_values));
 
         $products = array();
@@ -760,6 +766,7 @@ class WCAS_Search_Handler {
             )
         ";
 
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared -- $query built from safe table names; prepare() called with placeholders
         return absint($wpdb->get_var($wpdb->prepare($query, $query_values)));
     }
     
@@ -774,6 +781,7 @@ class WCAS_Search_Handler {
         );
 
         // Popular products — best-selling or most recent
+        // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- standard WooCommerce sort by sales
         $popular_args = array(
             'post_type'      => 'product',
             'post_status'    => 'publish',
@@ -874,23 +882,23 @@ class WCAS_Search_Handler {
         $quantity   = isset( $_POST['quantity'] ) ? max( 1, absint( wp_unslash( $_POST['quantity'] ) ) ) : 1;
 
         if (!$product_id) {
-            wp_send_json_error(array('message' => __('Invalid product.', 'wc-custom-ajax-search')));
+            wp_send_json_error(array('message' => __('Invalid product.', 'findly-ajax-search')));
         }
 
         $product = wc_get_product($product_id);
         if (!$product) {
-            wp_send_json_error(array('message' => __('Product not found.', 'wc-custom-ajax-search')));
+            wp_send_json_error(array('message' => __('Product not found.', 'findly-ajax-search')));
         }
 
         if (!$product->is_type('simple')) {
             wp_send_json_error(array(
-                'message'     => __('Please select options on the product page.', 'wc-custom-ajax-search'),
+                'message'     => __('Please select options on the product page.', 'findly-ajax-search'),
                 'product_url' => $product->get_permalink(),
             ));
         }
 
         if (!$product->is_purchasable() || !$product->is_in_stock()) {
-            wp_send_json_error(array('message' => __('This product cannot be added to cart.', 'wc-custom-ajax-search')));
+            wp_send_json_error(array('message' => __('This product cannot be added to cart.', 'findly-ajax-search')));
         }
 
         // Ensure cart session is initialized
@@ -901,13 +909,15 @@ class WCAS_Search_Handler {
         $cart_item_key = WC()->cart->add_to_cart($product_id, $quantity);
 
         if (!$cart_item_key) {
-            wp_send_json_error(array('message' => __('Could not add to cart.', 'wc-custom-ajax-search')));
+            wp_send_json_error(array('message' => __('Could not add to cart.', 'findly-ajax-search')));
         }
 
+        // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- WooCommerce core hook
         do_action('woocommerce_ajax_added_to_cart', $product_id);
 
         wp_send_json(array(
             'success'   => true,
+            // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- WooCommerce core filter
             'fragments' => apply_filters('woocommerce_add_to_cart_fragments', array()),
             'cart_hash' => WC()->cart->get_cart_hash(),
         ));

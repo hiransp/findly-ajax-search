@@ -7,13 +7,13 @@ Run through this before zipping and submitting:
 - [ ] Version in plugin header matches `WCAS_VERSION` constant (both `1.0.0`)
 - [ ] `readme.txt` `Stable tag` matches the version (`1.0.0`)
 - [ ] All `index.php` files present (root, includes/, assets/, assets/css/, assets/js/, languages/)
-- [ ] `languages/wc-custom-ajax-search.pot` file exists and is up to date
+- [ ] `languages/findly-ajax-search.pot` file exists and is up to date
 - [ ] `uninstall.php` exists and cleans up all data
 - [ ] `LICENSE` file exists (GPL-2.0)
 - [ ] No `.zip` files in the repo
 - [ ] No debug/console.log statements in JS
 - [ ] No `var_dump`, `print_r`, `error_log` calls in PHP (except the intentional security logging)
-- [ ] All user-facing strings use i18n functions with text domain `wc-custom-ajax-search`
+- [ ] All user-facing strings use i18n functions with text domain `findly-ajax-search`
 - [ ] Test: activate plugin without WooCommerce — dismissible admin notice appears
 - [ ] Test: activate plugin with WooCommerce — settings page works under WooCommerce menu
 - [ ] Test: shortcode `[wc_ajax_search]` renders search box on frontend
@@ -28,11 +28,11 @@ Run through this before zipping and submitting:
 make clean && make zip
 ```
 
-This creates `wc-custom-ajax-search.zip` with the correct structure:
+This creates `findly-ajax-search.zip` with the correct structure:
 
 ```
-wc-custom-ajax-search/
-├── wc-custom-ajax-search.php
+findly-ajax-search/
+├── findly-ajax-search.php
 ├── readme.txt
 ├── uninstall.php
 ├── index.php
@@ -53,13 +53,13 @@ wc-custom-ajax-search/
 │       └── ajax-search.js
 └── languages/
     ├── index.php
-    └── wc-custom-ajax-search.pot
+    └── findly-ajax-search.pot
 ```
 
 ## Submitting to WordPress.org
 
 1. Go to https://wordpress.org/plugins/developers/add/
-2. Upload `wc-custom-ajax-search.zip`
+2. Upload `findly-ajax-search.zip`
 3. Wait for the automated checks to pass
 4. The Plugin Review Team will manually review (typically 1-5 business days, can be longer)
 5. You'll receive email updates at your wordpress.org account email
@@ -79,11 +79,11 @@ WordPress.org plugins use SVN (not Git). After approval you'll receive SVN crede
 
 ```bash
 # Check out your plugin's SVN repo
-svn co https://plugins.svn.wordpress.org/wc-custom-ajax-search/ svn-wc-custom-ajax-search
-cd svn-wc-custom-ajax-search
+svn co https://plugins.svn.wordpress.org/findly-ajax-search/ svn-findly-ajax-search
+cd svn-findly-ajax-search
 
 # Copy plugin files to trunk/
-cp -r /path/to/wc-custom-ajax-search/* trunk/
+cp -r /path/to/findly-ajax-search/* trunk/
 # (exclude: .git, .github, .gitignore, .distignore, Makefile, CLAUDE.md, README.md, PRE_SUBMISSION.md, *.zip)
 
 # Add all files
@@ -123,10 +123,10 @@ These are **not** included in the plugin zip — they live only in the SVN `asse
 ## Releasing Updates
 
 ```bash
-cd svn-wc-custom-ajax-search
+cd svn-findly-ajax-search
 
 # Update trunk/ with new files
-# Update version in: wc-custom-ajax-search.php (header + constant), readme.txt (Stable tag)
+# Update version in: findly-ajax-search.php (header + constant), readme.txt (Stable tag)
 
 # Create a new tag
 svn cp trunk tags/1.1.0

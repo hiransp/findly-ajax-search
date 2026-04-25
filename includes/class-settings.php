@@ -67,8 +67,8 @@ class WCAS_Settings {
     public function add_menu_page() {
         add_submenu_page(
             'woocommerce',
-            __('AJAX Search Settings', 'wc-custom-ajax-search'),
-            __('AJAX Search', 'wc-custom-ajax-search'),
+            __('AJAX Search Settings', 'findly-ajax-search'),
+            __('AJAX Search', 'findly-ajax-search'),
             'manage_woocommerce',
             'wcas-settings',
             array($this, 'render_settings_page')
@@ -88,56 +88,56 @@ class WCAS_Settings {
         // --- Section: Search Fields ---
         add_settings_section(
             'wcas_search_fields',
-            __('Search Fields', 'wc-custom-ajax-search'),
+            __('Search Fields', 'findly-ajax-search'),
             array($this, 'render_search_fields_description'),
             'wcas-settings'
         );
 
-        add_settings_field('search_title', __('Product Title', 'wc-custom-ajax-search'), array($this, 'render_checkbox'), 'wcas-settings', 'wcas_search_fields', array('field' => 'search_title', 'desc' => __('Search in product titles', 'wc-custom-ajax-search')));
+        add_settings_field('search_title', __('Product Title', 'findly-ajax-search'), array($this, 'render_checkbox'), 'wcas-settings', 'wcas_search_fields', array('field' => 'search_title', 'desc' => __('Search in product titles', 'findly-ajax-search')));
 
-        add_settings_field('search_content', __('Product Description', 'wc-custom-ajax-search'), array($this, 'render_checkbox'), 'wcas-settings', 'wcas_search_fields', array('field' => 'search_content', 'desc' => __('Search in full product descriptions', 'wc-custom-ajax-search')));
+        add_settings_field('search_content', __('Product Description', 'findly-ajax-search'), array($this, 'render_checkbox'), 'wcas-settings', 'wcas_search_fields', array('field' => 'search_content', 'desc' => __('Search in full product descriptions', 'findly-ajax-search')));
 
-        add_settings_field('search_excerpt', __('Short Description', 'wc-custom-ajax-search'), array($this, 'render_checkbox'), 'wcas-settings', 'wcas_search_fields', array('field' => 'search_excerpt', 'desc' => __('Search in product short descriptions', 'wc-custom-ajax-search')));
+        add_settings_field('search_excerpt', __('Short Description', 'findly-ajax-search'), array($this, 'render_checkbox'), 'wcas-settings', 'wcas_search_fields', array('field' => 'search_excerpt', 'desc' => __('Search in product short descriptions', 'findly-ajax-search')));
 
-        add_settings_field('search_sku', __('SKU', 'wc-custom-ajax-search'), array($this, 'render_checkbox'), 'wcas-settings', 'wcas_search_fields', array('field' => 'search_sku', 'desc' => __('Search in product SKU codes', 'wc-custom-ajax-search')));
+        add_settings_field('search_sku', __('SKU', 'findly-ajax-search'), array($this, 'render_checkbox'), 'wcas-settings', 'wcas_search_fields', array('field' => 'search_sku', 'desc' => __('Search in product SKU codes', 'findly-ajax-search')));
 
-        add_settings_field('search_categories', __('Categories', 'wc-custom-ajax-search'), array($this, 'render_checkbox'), 'wcas-settings', 'wcas_search_fields', array('field' => 'search_categories', 'desc' => __('Search and show matching product categories', 'wc-custom-ajax-search')));
+        add_settings_field('search_categories', __('Categories', 'findly-ajax-search'), array($this, 'render_checkbox'), 'wcas-settings', 'wcas_search_fields', array('field' => 'search_categories', 'desc' => __('Search and show matching product categories', 'findly-ajax-search')));
 
-        add_settings_field('search_tags', __('Tags', 'wc-custom-ajax-search'), array($this, 'render_checkbox'), 'wcas-settings', 'wcas_search_fields', array('field' => 'search_tags', 'desc' => __('Search and show matching product tags', 'wc-custom-ajax-search')));
+        add_settings_field('search_tags', __('Tags', 'findly-ajax-search'), array($this, 'render_checkbox'), 'wcas-settings', 'wcas_search_fields', array('field' => 'search_tags', 'desc' => __('Search and show matching product tags', 'findly-ajax-search')));
 
-        add_settings_field('search_acf', __('ACF Custom Fields', 'wc-custom-ajax-search'), array($this, 'render_acf_fields'), 'wcas-settings', 'wcas_search_fields');
+        add_settings_field('search_acf', __('ACF Custom Fields', 'findly-ajax-search'), array($this, 'render_acf_fields'), 'wcas-settings', 'wcas_search_fields');
 
-        add_settings_field('search_custom_tax', __('Custom Taxonomies', 'wc-custom-ajax-search'), array($this, 'render_custom_taxonomies'), 'wcas-settings', 'wcas_search_fields');
+        add_settings_field('search_custom_tax', __('Custom Taxonomies', 'findly-ajax-search'), array($this, 'render_custom_taxonomies'), 'wcas-settings', 'wcas_search_fields');
 
         // --- Section: General ---
         add_settings_section(
             'wcas_general',
-            __('General Settings', 'wc-custom-ajax-search'),
+            __('General Settings', 'findly-ajax-search'),
             null,
             'wcas-settings'
         );
 
-        add_settings_field('max_products', __('Max Products', 'wc-custom-ajax-search'), array($this, 'render_number'), 'wcas-settings', 'wcas_general', array('field' => 'max_products', 'desc' => __('Maximum number of products to show in results', 'wc-custom-ajax-search'), 'min' => 1, 'max' => 30));
+        add_settings_field('max_products', __('Max Products', 'findly-ajax-search'), array($this, 'render_number'), 'wcas-settings', 'wcas_general', array('field' => 'max_products', 'desc' => __('Maximum number of products to show in results', 'findly-ajax-search'), 'min' => 1, 'max' => 30));
 
-        add_settings_field('max_terms_per_taxonomy', __('Max Terms per Taxonomy', 'wc-custom-ajax-search'), array($this, 'render_number'), 'wcas-settings', 'wcas_general', array('field' => 'max_terms_per_taxonomy', 'desc' => __('Maximum category/tag/taxonomy results to show', 'wc-custom-ajax-search'), 'min' => 1, 'max' => 20));
+        add_settings_field('max_terms_per_taxonomy', __('Max Terms per Taxonomy', 'findly-ajax-search'), array($this, 'render_number'), 'wcas-settings', 'wcas_general', array('field' => 'max_terms_per_taxonomy', 'desc' => __('Maximum category/tag/taxonomy results to show', 'findly-ajax-search'), 'min' => 1, 'max' => 20));
 
-        add_settings_field('min_chars', __('Minimum Characters', 'wc-custom-ajax-search'), array($this, 'render_number'), 'wcas-settings', 'wcas_general', array('field' => 'min_chars', 'desc' => __('Minimum characters before search triggers', 'wc-custom-ajax-search'), 'min' => 1, 'max' => 10));
+        add_settings_field('min_chars', __('Minimum Characters', 'findly-ajax-search'), array($this, 'render_number'), 'wcas-settings', 'wcas_general', array('field' => 'min_chars', 'desc' => __('Minimum characters before search triggers', 'findly-ajax-search'), 'min' => 1, 'max' => 10));
 
-        add_settings_field('debounce_delay', __('Debounce Delay (ms)', 'wc-custom-ajax-search'), array($this, 'render_number'), 'wcas-settings', 'wcas_general', array('field' => 'debounce_delay', 'desc' => __('Delay in milliseconds after user stops typing before search fires', 'wc-custom-ajax-search'), 'min' => 100, 'max' => 1000));
+        add_settings_field('debounce_delay', __('Debounce Delay (ms)', 'findly-ajax-search'), array($this, 'render_number'), 'wcas-settings', 'wcas_general', array('field' => 'debounce_delay', 'desc' => __('Delay in milliseconds after user stops typing before search fires', 'findly-ajax-search'), 'min' => 100, 'max' => 1000));
 
         // --- Section: Features ---
         add_settings_section(
             'wcas_features',
-            __('Feature Settings', 'wc-custom-ajax-search'),
+            __('Feature Settings', 'findly-ajax-search'),
             null,
             'wcas-settings'
         );
 
-        add_settings_field('enable_search_history', __('Search History', 'wc-custom-ajax-search'), array($this, 'render_checkbox'), 'wcas-settings', 'wcas_features', array('field' => 'enable_search_history', 'desc' => __('Show recent searches when the search box is focused', 'wc-custom-ajax-search')));
+        add_settings_field('enable_search_history', __('Search History', 'findly-ajax-search'), array($this, 'render_checkbox'), 'wcas-settings', 'wcas_features', array('field' => 'enable_search_history', 'desc' => __('Show recent searches when the search box is focused', 'findly-ajax-search')));
 
-        add_settings_field('max_recent_searches', __('Max Recent Searches', 'wc-custom-ajax-search'), array($this, 'render_number'), 'wcas-settings', 'wcas_features', array('field' => 'max_recent_searches', 'desc' => __('Number of recent searches to remember', 'wc-custom-ajax-search'), 'min' => 1, 'max' => 15));
+        add_settings_field('max_recent_searches', __('Max Recent Searches', 'findly-ajax-search'), array($this, 'render_number'), 'wcas-settings', 'wcas_features', array('field' => 'max_recent_searches', 'desc' => __('Number of recent searches to remember', 'findly-ajax-search'), 'min' => 1, 'max' => 15));
 
-        add_settings_field('enable_no_results_suggestions', __('No Results Suggestions', 'wc-custom-ajax-search'), array($this, 'render_checkbox'), 'wcas-settings', 'wcas_features', array('field' => 'enable_no_results_suggestions', 'desc' => __('Show popular products and categories when search returns no results', 'wc-custom-ajax-search')));
+        add_settings_field('enable_no_results_suggestions', __('No Results Suggestions', 'findly-ajax-search'), array($this, 'render_checkbox'), 'wcas-settings', 'wcas_features', array('field' => 'enable_no_results_suggestions', 'desc' => __('Show popular products and categories when search returns no results', 'findly-ajax-search')));
     }
 
     /**
@@ -234,7 +234,7 @@ class WCAS_Settings {
     // =========================================
 
     public function render_search_fields_description() {
-        echo '<p>' . esc_html__('Choose which fields are included when searching for products.', 'wc-custom-ajax-search') . '</p>';
+        echo '<p>' . esc_html__('Choose which fields are included when searching for products.', 'findly-ajax-search') . '</p>';
     }
 
     public function render_checkbox($args) {
@@ -246,7 +246,7 @@ class WCAS_Settings {
         printf(
             '<label><input type="checkbox" name="wcas_settings[%s]" value="1" %s /> %s</label>',
             esc_attr($field),
-            $checked,
+            esc_attr($checked),
             esc_html($desc)
         );
     }
@@ -263,8 +263,8 @@ class WCAS_Settings {
             '<input type="number" name="wcas_settings[%s]" value="%s" min="%d" max="%d" class="small-text" /> <span class="description">%s</span>',
             esc_attr($field),
             esc_attr($value),
-            $min,
-            $max,
+            absint($min),
+            absint($max),
             esc_html($desc)
         );
     }
@@ -277,14 +277,14 @@ class WCAS_Settings {
         echo '<div class="wcas-field-group">';
         printf(
             '<label><input type="checkbox" name="wcas_settings[search_acf]" value="1" %s class="wcas-toggle-parent" data-target="wcas-acf-fields" /> %s</label>',
-            $checked,
-            esc_html__('Search in ACF custom fields', 'wc-custom-ajax-search')
+            esc_attr($checked),
+            esc_html__('Search in ACF custom fields', 'findly-ajax-search')
         );
         printf(
             '<div class="wcas-sub-field %s" id="wcas-acf-fields"><input type="text" name="wcas_settings[acf_fields]" value="%s" class="regular-text" placeholder="book_title, original_title, translator" /><p class="description">%s</p></div>',
             empty($settings['search_acf']) ? 'wcas-hidden' : '',
             esc_attr($fields),
-            esc_html__('Comma-separated ACF field names. Requires Advanced Custom Fields plugin.', 'wc-custom-ajax-search')
+            esc_html__('Comma-separated ACF field names. Requires Advanced Custom Fields plugin.', 'findly-ajax-search')
         );
         echo '</div>';
     }
@@ -297,14 +297,14 @@ class WCAS_Settings {
         echo '<div class="wcas-field-group">';
         printf(
             '<label><input type="checkbox" name="wcas_settings[search_custom_tax]" value="1" %s class="wcas-toggle-parent" data-target="wcas-custom-tax" /> %s</label>',
-            $checked,
-            esc_html__('Search in custom taxonomies', 'wc-custom-ajax-search')
+            esc_attr($checked),
+            esc_html__('Search in custom taxonomies', 'findly-ajax-search')
         );
         printf(
             '<div class="wcas-sub-field %s" id="wcas-custom-tax"><input type="text" name="wcas_settings[custom_taxonomies]" value="%s" class="regular-text" placeholder="authors, publisher" /><p class="description">%s</p></div>',
             empty($settings['search_custom_tax']) ? 'wcas-hidden' : '',
             esc_attr($taxonomies),
-            esc_html__('Comma-separated taxonomy slugs registered for products.', 'wc-custom-ajax-search')
+            esc_html__('Comma-separated taxonomy slugs registered for products.', 'findly-ajax-search')
         );
         echo '</div>';
     }
@@ -318,18 +318,18 @@ class WCAS_Settings {
         }
         ?>
         <div class="wrap wcas-settings-wrap">
-            <h1><?php esc_html_e('WC Custom AJAX Search Settings', 'wc-custom-ajax-search'); ?></h1>
+            <h1><?php esc_html_e('Findly AJAX Search Settings', 'findly-ajax-search'); ?></h1>
 
             <div class="wcas-shortcode-box">
-                <span class="wcas-shortcode-label"><?php esc_html_e('Shortcode:', 'wc-custom-ajax-search'); ?></span>
+                <span class="wcas-shortcode-label"><?php esc_html_e('Shortcode:', 'findly-ajax-search'); ?></span>
                 <code class="wcas-shortcode-value" id="wcas-shortcode">[wc_ajax_search]</code>
                 <button type="button" class="button button-small wcas-copy-btn" data-copy="[wc_ajax_search]">
-                    <?php esc_html_e('Copy', 'wc-custom-ajax-search'); ?>
+                    <?php esc_html_e('Copy', 'findly-ajax-search'); ?>
                 </button>
-                <span class="wcas-copy-success"><?php esc_html_e('Copied!', 'wc-custom-ajax-search'); ?></span>
+                <span class="wcas-copy-success"><?php esc_html_e('Copied!', 'findly-ajax-search'); ?></span>
             </div>
             <p class="description" style="margin-top: 6px;">
-                <?php esc_html_e('Place this shortcode on any page or post to display the search box. You can also use:', 'wc-custom-ajax-search'); ?>
+                <?php esc_html_e('Place this shortcode on any page or post to display the search box. You can also use:', 'findly-ajax-search'); ?>
                 <code>[wc_ajax_search placeholder="Search products..."]</code>
             </p>
 
@@ -339,7 +339,7 @@ class WCAS_Settings {
                 <?php
                 settings_fields('wcas_settings_group');
                 do_settings_sections('wcas-settings');
-                submit_button(__('Save Settings', 'wc-custom-ajax-search'));
+                submit_button(__('Save Settings', 'findly-ajax-search'));
                 ?>
             </form>
         </div>

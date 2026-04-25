@@ -1,5 +1,5 @@
 /**
- * WC Custom AJAX Search - Frontend JavaScript
+ * Findly AJAX Search - Frontend JavaScript
  * 
  * Features:
  * - Full mobile optimization with overlay mode

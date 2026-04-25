@@ -1,11 +1,11 @@
 <?php
 /**
- * WC Custom AJAX Search - Uninstall
+ * Findly AJAX Search - Uninstall
  *
  * Cleans up all plugin data when the plugin is deleted via the WordPress admin.
  * This file is called automatically by WordPress — it is NOT called on deactivation.
  *
- * @package WC_Custom_AJAX_Search
+ * @package Findly_AJAX_Search
  * @license GPL-2.0-or-later
  */
 
@@ -20,6 +20,7 @@ global $wpdb;
 delete_option('wcas_settings');
 
 // Delete all search result cache transients
+// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 $wpdb->query(
     "DELETE FROM {$wpdb->options}
      WHERE option_name LIKE '_transient_wcas_%'

@@ -1,20 +1,20 @@
 <?php
 
 /**
- * WC Custom AJAX Search
+ * Findly — AJAX Search for WooCommerce
  *
- * @package WC_Custom_AJAX_Search
+ * @package Findly_AJAX_Search
  * @license GPL-2.0-or-later
  *
- * Plugin Name:       WC Custom AJAX Search
- * Plugin URI:        https://github.com/hiransp/wc-custom-ajax-search
+ * Plugin Name:       Findly — AJAX Search for WooCommerce
+ * Plugin URI:        https://github.com/hiransp/findly-ajax-search
  * Description:       Live AJAX product search for WooCommerce with ACF custom fields, custom taxonomies, product preview panel, and full mobile optimization.
  * Version:           1.0.0
  * Author:            Hiran
  * Author URI:        https://github.com/hiransp
  * License:           GPL-2.0-or-later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
- * Text Domain:       wc-custom-ajax-search
+ * Text Domain:       findly-ajax-search
  * Domain Path:       /languages
  * Requires at least: 5.8
  * Requires PHP:      7.4
@@ -106,17 +106,9 @@ function wcas_check_woocommerce()
 {
     if (!class_exists('WooCommerce')) {
         add_action('admin_notices', function () {
-            echo '<div class="notice notice-error is-dismissible"><p>' . esc_html__('WC Custom AJAX Search requires WooCommerce to be installed and active.', 'wc-custom-ajax-search') . '</p></div>';
+            echo '<div class="notice notice-error is-dismissible"><p>' . esc_html__('Findly AJAX Search requires WooCommerce to be installed and active.', 'findly-ajax-search') . '</p></div>';
         });
     }
-}
-
-/**
- * Load plugin text domain for translations
- */
-function wcas_load_textdomain()
-{
-    load_plugin_textdomain('wc-custom-ajax-search', false, dirname(plugin_basename(__FILE__)) . '/languages');
 }
 
 /**
@@ -130,7 +122,6 @@ function wcas_declare_hpos_compatibility()
 }
 
 add_action('plugins_loaded', 'wcas_init');
-add_action('plugins_loaded', 'wcas_load_textdomain');
 add_action('admin_init', 'wcas_check_woocommerce');
 add_action('before_woocommerce_init', 'wcas_declare_hpos_compatibility');
 
@@ -179,26 +170,26 @@ function wcas_maybe_enqueue_assets()
         'maxRecentSearches' => $config['max_recent_searches'],
         'enableNoResultsSuggestions' => $config['enable_no_results_suggestions'],
         'i18n' => array(
-            'noResults' => __('No results found', 'wc-custom-ajax-search'),
-            'searching' => __('Searching...', 'wc-custom-ajax-search'),
-            'seeAllResults' => __('See all results', 'wc-custom-ajax-search'),
-            'addToCart' => __('Add to cart', 'wc-custom-ajax-search'),
-            'added' => __('Added!', 'wc-custom-ajax-search'),
-            'rateLimited' => __('Please slow down and try again.', 'wc-custom-ajax-search'),
-            'hoverPreview' => __('Hover over a product to see details', 'wc-custom-ajax-search'),
-            'viewProduct' => __('View Product', 'wc-custom-ajax-search'),
-            'inStock' => __('In Stock', 'wc-custom-ajax-search'),
-            'outOfStock' => __('Out of Stock', 'wc-custom-ajax-search'),
-            'back' => __('Back', 'wc-custom-ajax-search'),
-            'close' => __('Close', 'wc-custom-ajax-search'),
-            'categories' => __('Categories', 'wc-custom-ajax-search'),
-            'tags' => __('Tags', 'wc-custom-ajax-search'),
-            'products' => __('Products', 'wc-custom-ajax-search'),
-            'recentSearches' => __('Recent Searches', 'wc-custom-ajax-search'),
-            'clearHistory' => __('Clear all', 'wc-custom-ajax-search'),
-            'noResultsTryAgain' => __('No results found. Try a different search term.', 'wc-custom-ajax-search'),
-            'popularProducts' => __('Popular Products', 'wc-custom-ajax-search'),
-            'topCategories' => __('Top Categories', 'wc-custom-ajax-search'),
+            'noResults' => __('No results found', 'findly-ajax-search'),
+            'searching' => __('Searching...', 'findly-ajax-search'),
+            'seeAllResults' => __('See all results', 'findly-ajax-search'),
+            'addToCart' => __('Add to cart', 'findly-ajax-search'),
+            'added' => __('Added!', 'findly-ajax-search'),
+            'rateLimited' => __('Please slow down and try again.', 'findly-ajax-search'),
+            'hoverPreview' => __('Hover over a product to see details', 'findly-ajax-search'),
+            'viewProduct' => __('View Product', 'findly-ajax-search'),
+            'inStock' => __('In Stock', 'findly-ajax-search'),
+            'outOfStock' => __('Out of Stock', 'findly-ajax-search'),
+            'back' => __('Back', 'findly-ajax-search'),
+            'close' => __('Close', 'findly-ajax-search'),
+            'categories' => __('Categories', 'findly-ajax-search'),
+            'tags' => __('Tags', 'findly-ajax-search'),
+            'products' => __('Products', 'findly-ajax-search'),
+            'recentSearches' => __('Recent Searches', 'findly-ajax-search'),
+            'clearHistory' => __('Clear all', 'findly-ajax-search'),
+            'noResultsTryAgain' => __('No results found. Try a different search term.', 'findly-ajax-search'),
+            'popularProducts' => __('Popular Products', 'findly-ajax-search'),
+            'topCategories' => __('Top Categories', 'findly-ajax-search'),
         ),
     ));
 }

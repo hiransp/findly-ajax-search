@@ -1,14 +1,14 @@
 # SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR Hiran
-# This file is distributed under the same license as the WC Custom AJAX Search package.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the Findly AJAX Search package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: WC Custom AJAX Search 1.0.0\n"
+"Project-Id-Version: Findly AJAX Search 1.0.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-25 19:41+0530\n"
+"POT-Creation-Date: 2026-04-25 20:17+0530\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,107 +17,107 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: wc-custom-ajax-search.php:109
-msgid "WC Custom AJAX Search requires WooCommerce to be installed and active."
+#: findly-ajax-search.php:109
+msgid "Findly AJAX Search requires WooCommerce to be installed and active."
 msgstr ""
 
-#: wc-custom-ajax-search.php:182
+#: findly-ajax-search.php:173
 msgid "No results found"
 msgstr ""
 
-#: wc-custom-ajax-search.php:183
+#: findly-ajax-search.php:174
 msgid "Searching..."
 msgstr ""
 
-#: wc-custom-ajax-search.php:184
+#: findly-ajax-search.php:175
 msgid "See all results"
 msgstr ""
 
-#: wc-custom-ajax-search.php:185
+#: findly-ajax-search.php:176
 msgid "Add to cart"
 msgstr ""
 
-#: wc-custom-ajax-search.php:186
+#: findly-ajax-search.php:177
 msgid "Added!"
 msgstr ""
 
-#: wc-custom-ajax-search.php:187
+#: findly-ajax-search.php:178
 msgid "Please slow down and try again."
 msgstr ""
 
-#: wc-custom-ajax-search.php:188 includes/class-shortcode.php:86
+#: findly-ajax-search.php:179 includes/class-shortcode.php:86
 msgid "Hover over a product to see details"
 msgstr ""
 
-#: wc-custom-ajax-search.php:189
+#: findly-ajax-search.php:180
 msgid "View Product"
 msgstr ""
 
-#: wc-custom-ajax-search.php:190
+#: findly-ajax-search.php:181
 msgid "In Stock"
 msgstr ""
 
-#: wc-custom-ajax-search.php:191
+#: findly-ajax-search.php:182
 msgid "Out of Stock"
 msgstr ""
 
-#: wc-custom-ajax-search.php:192
+#: findly-ajax-search.php:183
 msgid "Back"
 msgstr ""
 
-#: wc-custom-ajax-search.php:193
+#: findly-ajax-search.php:184
 msgid "Close"
 msgstr ""
 
-#: wc-custom-ajax-search.php:194 includes/class-settings.php:104
+#: findly-ajax-search.php:185 includes/class-settings.php:104
 msgid "Categories"
 msgstr ""
 
-#: wc-custom-ajax-search.php:195 includes/class-settings.php:106
+#: findly-ajax-search.php:186 includes/class-settings.php:106
 msgid "Tags"
 msgstr ""
 
-#: wc-custom-ajax-search.php:196
+#: findly-ajax-search.php:187
 msgid "Products"
 msgstr ""
 
-#: wc-custom-ajax-search.php:197
+#: findly-ajax-search.php:188
 msgid "Recent Searches"
 msgstr ""
 
-#: wc-custom-ajax-search.php:198
+#: findly-ajax-search.php:189
 msgid "Clear all"
 msgstr ""
 
-#: wc-custom-ajax-search.php:199
+#: findly-ajax-search.php:190
 msgid "No results found. Try a different search term."
 msgstr ""
 
-#: wc-custom-ajax-search.php:200
+#: findly-ajax-search.php:191
 msgid "Popular Products"
 msgstr ""
 
-#: wc-custom-ajax-search.php:201
+#: findly-ajax-search.php:192
 msgid "Top Categories"
 msgstr ""
 
-#: includes/class-search-handler.php:877
+#: includes/class-search-handler.php:885
 msgid "Invalid product."
 msgstr ""
 
-#: includes/class-search-handler.php:882
+#: includes/class-search-handler.php:890
 msgid "Product not found."
 msgstr ""
 
-#: includes/class-search-handler.php:887
+#: includes/class-search-handler.php:895
 msgid "Please select options on the product page."
 msgstr ""
 
-#: includes/class-search-handler.php:893
+#: includes/class-search-handler.php:901
 msgid "This product cannot be added to cart."
 msgstr ""
 
-#: includes/class-search-handler.php:904
+#: includes/class-search-handler.php:912
 msgid "Could not add to cart."
 msgstr ""
 
@@ -267,7 +267,7 @@ msgid "Comma-separated taxonomy slugs registered for products."
 msgstr ""
 
 #: includes/class-settings.php:321
-msgid "WC Custom AJAX Search Settings"
+msgid "Findly AJAX Search Settings"
 msgstr ""
 
 #: includes/class-settings.php:324

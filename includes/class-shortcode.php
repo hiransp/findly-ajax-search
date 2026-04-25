@@ -36,7 +36,7 @@ class WCAS_Shortcode {
         self::$enqueue_assets = true;
 
         $atts = shortcode_atts(array(
-            'placeholder' => __('Search for your favorite books...', 'wc-custom-ajax-search'),
+            'placeholder' => __('Search for your favorite books...', 'findly-ajax-search'),
             'class' => '',
         ), $atts, 'wc_ajax_search');
         
@@ -67,7 +67,7 @@ class WCAS_Shortcode {
                         <path d="M21 12a9 9 0 1 1-6.219-8.56"></path>
                     </svg>
                 </span>
-                <span class="wcas-clear" title="<?php esc_attr_e('Clear', 'wc-custom-ajax-search'); ?>">
+                <span class="wcas-clear" title="<?php esc_attr_e('Clear', 'findly-ajax-search'); ?>">
                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M18 6 6 18"></path>
                         <path d="m6 6 12 12"></path>
@@ -83,7 +83,7 @@ class WCAS_Shortcode {
                     <div class="wcas-preview-panel">
                         <!-- Product preview will be shown here -->
                         <div class="wcas-preview-placeholder">
-                            <span><?php esc_html_e('Hover over a product to see details', 'wc-custom-ajax-search'); ?></span>
+                            <span><?php esc_html_e('Hover over a product to see details', 'findly-ajax-search'); ?></span>
                         </div>
                     </div>
                 </div>
