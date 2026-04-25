@@ -6,7 +6,7 @@
  * @package Findly_AJAX_Search
  * @license GPL-2.0-or-later
  *
- * Plugin Name:       Findly — AJAX Search for WooCommerce
+ * Plugin Name:       Findly AJAX Search for WooCommerce
  * Plugin URI:        https://github.com/hiransp/findly-ajax-search
  * Description:       Live AJAX product search for WooCommerce with ACF custom fields, custom taxonomies, product preview panel, and full mobile optimization.
  * Version:           1.0.0
