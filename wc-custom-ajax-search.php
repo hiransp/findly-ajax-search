@@ -7,7 +7,7 @@
  * @license GPL-2.0-or-later
  *
  * Plugin Name:       WC Custom AJAX Search
- * Plugin URI:        https://github.com/hiran/wc-custom-ajax-search
+ * Plugin URI:        https://github.com/hiransp/wc-custom-ajax-search
  * Description:       Live AJAX product search for WooCommerce with ACF custom fields, custom taxonomies, product preview panel, and full mobile optimization.
  * Version:           1.0.0
  * Author:            Hiran
