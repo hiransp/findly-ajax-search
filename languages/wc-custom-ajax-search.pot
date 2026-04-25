@@ -1,0 +1,301 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR Hiran
+# This file is distributed under the same license as the WC Custom AJAX Search package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: WC Custom AJAX Search 1.0.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-04-25 19:41+0530\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: wc-custom-ajax-search.php:109
+msgid "WC Custom AJAX Search requires WooCommerce to be installed and active."
+msgstr ""
+
+#: wc-custom-ajax-search.php:182
+msgid "No results found"
+msgstr ""
+
+#: wc-custom-ajax-search.php:183
+msgid "Searching..."
+msgstr ""
+
+#: wc-custom-ajax-search.php:184
+msgid "See all results"
+msgstr ""
+
+#: wc-custom-ajax-search.php:185
+msgid "Add to cart"
+msgstr ""
+
+#: wc-custom-ajax-search.php:186
+msgid "Added!"
+msgstr ""
+
+#: wc-custom-ajax-search.php:187
+msgid "Please slow down and try again."
+msgstr ""
+
+#: wc-custom-ajax-search.php:188 includes/class-shortcode.php:86
+msgid "Hover over a product to see details"
+msgstr ""
+
+#: wc-custom-ajax-search.php:189
+msgid "View Product"
+msgstr ""
+
+#: wc-custom-ajax-search.php:190
+msgid "In Stock"
+msgstr ""
+
+#: wc-custom-ajax-search.php:191
+msgid "Out of Stock"
+msgstr ""
+
+#: wc-custom-ajax-search.php:192
+msgid "Back"
+msgstr ""
+
+#: wc-custom-ajax-search.php:193
+msgid "Close"
+msgstr ""
+
+#: wc-custom-ajax-search.php:194 includes/class-settings.php:104
+msgid "Categories"
+msgstr ""
+
+#: wc-custom-ajax-search.php:195 includes/class-settings.php:106
+msgid "Tags"
+msgstr ""
+
+#: wc-custom-ajax-search.php:196
+msgid "Products"
+msgstr ""
+
+#: wc-custom-ajax-search.php:197
+msgid "Recent Searches"
+msgstr ""
+
+#: wc-custom-ajax-search.php:198
+msgid "Clear all"
+msgstr ""
+
+#: wc-custom-ajax-search.php:199
+msgid "No results found. Try a different search term."
+msgstr ""
+
+#: wc-custom-ajax-search.php:200
+msgid "Popular Products"
+msgstr ""
+
+#: wc-custom-ajax-search.php:201
+msgid "Top Categories"
+msgstr ""
+
+#: includes/class-search-handler.php:877
+msgid "Invalid product."
+msgstr ""
+
+#: includes/class-search-handler.php:882
+msgid "Product not found."
+msgstr ""
+
+#: includes/class-search-handler.php:887
+msgid "Please select options on the product page."
+msgstr ""
+
+#: includes/class-search-handler.php:893
+msgid "This product cannot be added to cart."
+msgstr ""
+
+#: includes/class-search-handler.php:904
+msgid "Could not add to cart."
+msgstr ""
+
+#: includes/class-settings.php:70
+msgid "AJAX Search Settings"
+msgstr ""
+
+#: includes/class-settings.php:71
+msgid "AJAX Search"
+msgstr ""
+
+#: includes/class-settings.php:91
+msgid "Search Fields"
+msgstr ""
+
+#: includes/class-settings.php:96
+msgid "Product Title"
+msgstr ""
+
+#: includes/class-settings.php:96
+msgid "Search in product titles"
+msgstr ""
+
+#: includes/class-settings.php:98
+msgid "Product Description"
+msgstr ""
+
+#: includes/class-settings.php:98
+msgid "Search in full product descriptions"
+msgstr ""
+
+#: includes/class-settings.php:100
+msgid "Short Description"
+msgstr ""
+
+#: includes/class-settings.php:100
+msgid "Search in product short descriptions"
+msgstr ""
+
+#: includes/class-settings.php:102
+msgid "SKU"
+msgstr ""
+
+#: includes/class-settings.php:102
+msgid "Search in product SKU codes"
+msgstr ""
+
+#: includes/class-settings.php:104
+msgid "Search and show matching product categories"
+msgstr ""
+
+#: includes/class-settings.php:106
+msgid "Search and show matching product tags"
+msgstr ""
+
+#: includes/class-settings.php:108
+msgid "ACF Custom Fields"
+msgstr ""
+
+#: includes/class-settings.php:110
+msgid "Custom Taxonomies"
+msgstr ""
+
+#: includes/class-settings.php:115
+msgid "General Settings"
+msgstr ""
+
+#: includes/class-settings.php:120
+msgid "Max Products"
+msgstr ""
+
+#: includes/class-settings.php:120
+msgid "Maximum number of products to show in results"
+msgstr ""
+
+#: includes/class-settings.php:122
+msgid "Max Terms per Taxonomy"
+msgstr ""
+
+#: includes/class-settings.php:122
+msgid "Maximum category/tag/taxonomy results to show"
+msgstr ""
+
+#: includes/class-settings.php:124
+msgid "Minimum Characters"
+msgstr ""
+
+#: includes/class-settings.php:124
+msgid "Minimum characters before search triggers"
+msgstr ""
+
+#: includes/class-settings.php:126
+msgid "Debounce Delay (ms)"
+msgstr ""
+
+#: includes/class-settings.php:126
+msgid "Delay in milliseconds after user stops typing before search fires"
+msgstr ""
+
+#: includes/class-settings.php:131
+msgid "Feature Settings"
+msgstr ""
+
+#: includes/class-settings.php:136
+msgid "Search History"
+msgstr ""
+
+#: includes/class-settings.php:136
+msgid "Show recent searches when the search box is focused"
+msgstr ""
+
+#: includes/class-settings.php:138
+msgid "Max Recent Searches"
+msgstr ""
+
+#: includes/class-settings.php:138
+msgid "Number of recent searches to remember"
+msgstr ""
+
+#: includes/class-settings.php:140
+msgid "No Results Suggestions"
+msgstr ""
+
+#: includes/class-settings.php:140
+msgid "Show popular products and categories when search returns no results"
+msgstr ""
+
+#: includes/class-settings.php:237
+msgid "Choose which fields are included when searching for products."
+msgstr ""
+
+#: includes/class-settings.php:281
+msgid "Search in ACF custom fields"
+msgstr ""
+
+#: includes/class-settings.php:287
+msgid ""
+"Comma-separated ACF field names. Requires Advanced Custom Fields plugin."
+msgstr ""
+
+#: includes/class-settings.php:301
+msgid "Search in custom taxonomies"
+msgstr ""
+
+#: includes/class-settings.php:307
+msgid "Comma-separated taxonomy slugs registered for products."
+msgstr ""
+
+#: includes/class-settings.php:321
+msgid "WC Custom AJAX Search Settings"
+msgstr ""
+
+#: includes/class-settings.php:324
+msgid "Shortcode:"
+msgstr ""
+
+#: includes/class-settings.php:327
+msgid "Copy"
+msgstr ""
+
+#: includes/class-settings.php:329
+msgid "Copied!"
+msgstr ""
+
+#: includes/class-settings.php:332
+msgid ""
+"Place this shortcode on any page or post to display the search box. You can "
+"also use:"
+msgstr ""
+
+#: includes/class-settings.php:342
+msgid "Save Settings"
+msgstr ""
+
+#: includes/class-shortcode.php:39
+msgid "Search for your favorite books..."
+msgstr ""
+
+#: includes/class-shortcode.php:70
+msgid "Clear"
+msgstr ""
