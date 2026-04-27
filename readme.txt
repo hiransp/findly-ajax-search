@@ -1,4 +1,4 @@
-=== Findly — AJAX Search for WooCommerce ===
+=== Findly AJAX Search for WooCommerce ===
 Contributors: hiran
 Tags: woocommerce, search, ajax, product search, live search
 Requires at least: 5.8
