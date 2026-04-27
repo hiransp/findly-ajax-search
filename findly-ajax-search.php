@@ -77,6 +77,8 @@ function wcas_get_config()
         'enable_search_history'         => !empty($s['enable_search_history']),
         'max_recent_searches'           => absint($s['max_recent_searches']),
         'enable_no_results_suggestions' => !empty($s['enable_no_results_suggestions']),
+        'mobile_icon_only'              => !empty($s['mobile_icon_only']),
+        'mobile_icon_breakpoint'        => absint($s['mobile_icon_breakpoint']),
     );
 }
 
@@ -161,6 +163,66 @@ function wcas_maybe_enqueue_assets()
     wp_enqueue_script('wcas-script');
 
     $config = wcas_get_config();
+    if ($config['mobile_icon_only']) {
+        $bp = absint($config['mobile_icon_breakpoint']);
+        $inline_css = "@media (max-width: {$bp}px) {
+    .wcas-mobile-icon-mode .wcas-mobile-trigger {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: var(--wcas-touch-target);
+        height: var(--wcas-touch-target);
+        background: var(--wcas-bg);
+        border: 1px solid var(--wcas-border);
+        border-radius: var(--wcas-radius-md);
+        color: var(--wcas-text-light);
+        cursor: pointer;
+        -webkit-tap-highlight-color: transparent;
+        transition: border-color var(--wcas-transition-normal), color var(--wcas-transition-normal);
+    }
+    .wcas-mobile-icon-mode .wcas-mobile-trigger:hover,
+    .wcas-mobile-icon-mode .wcas-mobile-trigger:active {
+        border-color: var(--wcas-primary);
+        color: var(--wcas-primary);
+    }
+    .wcas-mobile-icon-mode .wcas-search-box,
+    .wcas-mobile-icon-mode .wcas-results-wrapper { display: none; }
+    .wcas-mobile-icon-mode.wcas-mobile-search-open .wcas-mobile-overlay {
+        display: block; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+        background: var(--wcas-overlay); z-index: var(--wcas-z-overlay);
+    }
+    .wcas-mobile-icon-mode.wcas-mobile-search-open .wcas-mobile-trigger { display: none; }
+    .wcas-mobile-icon-mode.wcas-mobile-search-open .wcas-mobile-close {
+        display: flex; align-items: center; justify-content: center;
+        position: fixed; top: 0; right: 0; width: 56px; height: 56px;
+        padding-top: env(safe-area-inset-top, 0);
+        z-index: calc(var(--wcas-z-modal) + 1);
+        background: none; border: none; color: var(--wcas-text-light);
+        cursor: pointer; -webkit-tap-highlight-color: transparent;
+        transition: color var(--wcas-transition-fast);
+    }
+    .wcas-mobile-icon-mode.wcas-mobile-search-open .wcas-mobile-close:hover,
+    .wcas-mobile-icon-mode.wcas-mobile-search-open .wcas-mobile-close:active { color: var(--wcas-text); }
+    .wcas-mobile-icon-mode.wcas-mobile-search-open .wcas-search-box {
+        display: flex; position: fixed; top: 0; left: 0; right: 0;
+        z-index: var(--wcas-z-modal); border-radius: 0; border: none;
+        border-bottom: 1px solid var(--wcas-border); min-height: 56px;
+        padding: 0 56px 0 var(--wcas-spacing-md); background: var(--wcas-bg);
+        padding-top: env(safe-area-inset-top, 0);
+    }
+    .wcas-mobile-icon-mode.wcas-mobile-search-open .wcas-results-wrapper {
+        display: block; position: fixed;
+        top: 56px; top: calc(56px + env(safe-area-inset-top, 0));
+        left: 0; right: 0; bottom: 0; z-index: var(--wcas-z-modal);
+        margin-top: 0; border: none; border-radius: 0; box-shadow: none;
+        transform: none; opacity: 1; overflow-y: auto;
+    }
+    .wcas-mobile-icon-mode.wcas-mobile-search-open .wcas-results-wrapper .wcas-results-container { max-height: none; }
+    body.wcas-body-overlay-open { overflow: hidden; }
+}";
+        wp_add_inline_style('wcas-styles', $inline_css);
+    }
+
     wp_localize_script('wcas-script', 'wcasConfig', array(
         'ajaxUrl' => admin_url('admin-ajax.php'),
         'nonce' => wp_create_nonce('wcas_search_nonce'),
@@ -169,6 +231,8 @@ function wcas_maybe_enqueue_assets()
         'enableSearchHistory' => $config['enable_search_history'],
         'maxRecentSearches' => $config['max_recent_searches'],
         'enableNoResultsSuggestions' => $config['enable_no_results_suggestions'],
+        'mobileIconOnly' => $config['mobile_icon_only'],
+        'mobileIconBreakpoint' => $config['mobile_icon_breakpoint'],
         'i18n' => array(
             'noResults' => __('No results found', 'findly-ajax-search'),
             'searching' => __('Searching...', 'findly-ajax-search'),

@@ -49,6 +49,8 @@ class WCAS_Settings {
             'enable_search_history'     => 1,
             'max_recent_searches'       => 5,
             'enable_no_results_suggestions' => 1,
+            'mobile_icon_only'              => 0,
+            'mobile_icon_breakpoint'        => 768,
         );
     }
 
@@ -138,6 +140,8 @@ class WCAS_Settings {
         add_settings_field('max_recent_searches', __('Max Recent Searches', 'findly-ajax-search'), array($this, 'render_number'), 'wcas-settings', 'wcas_features', array('field' => 'max_recent_searches', 'desc' => __('Number of recent searches to remember', 'findly-ajax-search'), 'min' => 1, 'max' => 15));
 
         add_settings_field('enable_no_results_suggestions', __('No Results Suggestions', 'findly-ajax-search'), array($this, 'render_checkbox'), 'wcas-settings', 'wcas_features', array('field' => 'enable_no_results_suggestions', 'desc' => __('Show popular products and categories when search returns no results', 'findly-ajax-search')));
+
+        add_settings_field('mobile_icon_only', __('Mobile Icon Only', 'findly-ajax-search'), array($this, 'render_mobile_icon_fields'), 'wcas-settings', 'wcas_features');
     }
 
     /**
@@ -152,6 +156,7 @@ class WCAS_Settings {
             'search_title', 'search_content', 'search_excerpt', 'search_sku',
             'search_categories', 'search_tags', 'search_acf', 'search_custom_tax',
             'enable_search_history', 'enable_no_results_suggestions',
+            'mobile_icon_only',
         );
         foreach ($checkboxes as $cb) {
             $sanitized[$cb] = !empty($input[$cb]) ? 1 : 0;
@@ -164,6 +169,7 @@ class WCAS_Settings {
             'min_chars'              => array(1, 10),
             'debounce_delay'         => array(100, 1000),
             'max_recent_searches'    => array(1, 15),
+            'mobile_icon_breakpoint' => array(320, 1440),
         );
         foreach ($numbers as $key => $range) {
             $val = isset($input[$key]) ? absint($input[$key]) : $defaults[$key];
@@ -305,6 +311,27 @@ class WCAS_Settings {
             empty($settings['search_custom_tax']) ? 'wcas-hidden' : '',
             esc_attr($taxonomies),
             esc_html__('Comma-separated taxonomy slugs registered for products.', 'findly-ajax-search')
+        );
+        echo '</div>';
+    }
+
+    public function render_mobile_icon_fields() {
+        $settings = self::get_settings();
+        $checked = !empty($settings['mobile_icon_only']) ? 'checked' : '';
+        $breakpoint = isset($settings['mobile_icon_breakpoint']) ? $settings['mobile_icon_breakpoint'] : 768;
+
+        echo '<div class="wcas-field-group">';
+        printf(
+            '<label><input type="checkbox" name="wcas_settings[mobile_icon_only]" value="1" %s class="wcas-toggle-parent" data-target="wcas-mobile-breakpoint" /> %s</label>',
+            esc_attr($checked),
+            esc_html__('Show only a search icon on mobile devices instead of the full search box. Tapping the icon opens the search overlay.', 'findly-ajax-search')
+        );
+        printf(
+            '<div class="wcas-sub-field %s" id="wcas-mobile-breakpoint"><label>%s <input type="number" name="wcas_settings[mobile_icon_breakpoint]" value="%s" min="320" max="1440" class="small-text" /> px</label><p class="description">%s</p></div>',
+            empty($settings['mobile_icon_only']) ? 'wcas-hidden' : '',
+            esc_html__('Breakpoint:', 'findly-ajax-search'),
+            esc_attr($breakpoint),
+            esc_html__('Screen width (in pixels) below which the search box switches to icon-only mode. Default: 768.', 'findly-ajax-search')
         );
         echo '</div>';
     }

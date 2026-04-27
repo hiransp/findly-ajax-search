@@ -40,7 +40,13 @@ class WCAS_Shortcode {
             'class' => '',
         ), $atts, 'wc_ajax_search');
         
+        $settings = WCAS_Settings::get_settings();
+        $mobile_icon_only = !empty($settings['mobile_icon_only']);
+
         $wrapper_class = 'wcas-wrapper';
+        if ($mobile_icon_only) {
+            $wrapper_class .= ' wcas-mobile-icon-mode';
+        }
         if (!empty($atts['class'])) {
             $wrapper_class .= ' ' . esc_attr($atts['class']);
         }
@@ -48,6 +54,19 @@ class WCAS_Shortcode {
         ob_start();
         ?>
         <div class="<?php echo esc_attr($wrapper_class); ?>">
+            <button type="button" class="wcas-mobile-trigger" aria-label="<?php esc_attr_e('Open search', 'findly-ajax-search'); ?>">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <path d="m21 21-4.35-4.35"></path>
+                </svg>
+            </button>
+            <div class="wcas-mobile-overlay"></div>
+            <div class="wcas-mobile-close" aria-label="<?php esc_attr_e('Close search', 'findly-ajax-search'); ?>">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 6 6 18"></path>
+                    <path d="m6 6 12 12"></path>
+                </svg>
+            </div>
             <div class="wcas-search-box">
                 <span class="wcas-search-icon">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">

@@ -200,6 +200,9 @@
             this.$previewPanel = $wrapper.find('.wcas-preview-panel');
             this.$spinner = $wrapper.find('.wcas-spinner');
             this.$clear = $wrapper.find('.wcas-clear');
+            this.$mobileTrigger = $wrapper.find('.wcas-mobile-trigger');
+            this.$mobileOverlay = $wrapper.find('.wcas-mobile-overlay');
+            this.$mobileClose = $wrapper.find('.wcas-mobile-close');
 
             this.currentRequest = null;
             this.selectedIndex = -1;
@@ -294,6 +297,9 @@
             $(document).on('click', (e) => {
                 if (!this.$wrapper.is(e.target) && this.$wrapper.has(e.target).length === 0) {
                     this.hideResults();
+                    if (this.isMobileIconMode() && this.$wrapper.hasClass('wcas-mobile-search-open')) {
+                        this.closeMobileSearch();
+                    }
                 }
             });
 
@@ -302,8 +308,44 @@
                 if (e.key === 'Escape') {
                     this.hideResults();
                     this.$input.blur();
+                    this.closeMobileSearch();
                 }
             });
+
+            // Mobile icon-only mode
+            if (wcasConfig.mobileIconOnly) {
+                this.$mobileTrigger.on('click touchend', (e) => {
+                    e.preventDefault();
+                    this.openMobileSearch();
+                });
+
+                this.$mobileOverlay.on('click touchend', (e) => {
+                    e.preventDefault();
+                    this.closeMobileSearch();
+                });
+
+                this.$mobileClose.on('click touchend', (e) => {
+                    e.preventDefault();
+                    this.closeMobileSearch();
+                });
+            }
+        }
+
+        isMobileIconMode() {
+            return wcasConfig.mobileIconOnly && window.innerWidth <= (wcasConfig.mobileIconBreakpoint || 768);
+        }
+
+        openMobileSearch() {
+            if (!this.isMobileIconMode()) return;
+            this.$wrapper.addClass('wcas-mobile-search-open');
+            document.body.classList.add('wcas-body-overlay-open');
+            setTimeout(() => this.$input.focus(), 50);
+        }
+
+        closeMobileSearch() {
+            this.$wrapper.removeClass('wcas-mobile-search-open');
+            document.body.classList.remove('wcas-body-overlay-open');
+            this.hideResults();
         }
 
         performSearch(term) {
