@@ -31,7 +31,7 @@ Findly adds a fast, live search box to your WooCommerce store. Results appear in
 
 = How It Works =
 
-1. Add the `[wc_ajax_search]` shortcode to any page, post, or widget
+1. Add the `[findly_ajax_search]` shortcode to any page, post, or widget
 2. Customers type in the search box and results appear instantly
 3. Results are grouped by categories, tags, custom taxonomies, and products
 4. Hovering over a product shows a detailed preview panel
@@ -58,13 +58,13 @@ The plugin uses CSS custom properties for easy theme integration. Override `--wc
 1. Upload the `findly-ajax-search` folder to the `/wp-content/plugins/` directory, or install directly through the WordPress plugin screen.
 2. Activate the plugin through the **Plugins** screen in WordPress.
 3. Go to **WooCommerce > AJAX Search** to configure your search settings.
-4. Add the shortcode `[wc_ajax_search]` to any page or post where you want the search box to appear.
+4. Add the shortcode `[findly_ajax_search]` to any page or post where you want the search box to appear.
 
 = Shortcode Options =
 
-* `[wc_ajax_search]` — Default search box
-* `[wc_ajax_search placeholder="Search products..."]` — Custom placeholder text
-* `[wc_ajax_search class="my-custom-class"]` — Additional CSS class on the wrapper
+* `[findly_ajax_search]` — Default search box
+* `[findly_ajax_search placeholder="Search products..."]` — Custom placeholder text
+* `[findly_ajax_search class="my-custom-class"]` — Additional CSS class on the wrapper
 
 == Frequently Asked Questions ==
 

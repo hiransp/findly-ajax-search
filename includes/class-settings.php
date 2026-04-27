@@ -349,15 +349,15 @@ class WCAS_Settings {
 
             <div class="wcas-shortcode-box">
                 <span class="wcas-shortcode-label"><?php esc_html_e('Shortcode:', 'findly-ajax-search'); ?></span>
-                <code class="wcas-shortcode-value" id="wcas-shortcode">[wc_ajax_search]</code>
-                <button type="button" class="button button-small wcas-copy-btn" data-copy="[wc_ajax_search]">
+                <code class="wcas-shortcode-value" id="wcas-shortcode">[findly_ajax_search]</code>
+                <button type="button" class="button button-small wcas-copy-btn" data-copy="[findly_ajax_search]">
                     <?php esc_html_e('Copy', 'findly-ajax-search'); ?>
                 </button>
                 <span class="wcas-copy-success"><?php esc_html_e('Copied!', 'findly-ajax-search'); ?></span>
             </div>
             <p class="description" style="margin-top: 6px;">
                 <?php esc_html_e('Place this shortcode on any page or post to display the search box. You can also use:', 'findly-ajax-search'); ?>
-                <code>[wc_ajax_search placeholder="Search products..."]</code>
+                <code>[findly_ajax_search placeholder="Search products..."]</code>
             </p>
 
             <?php settings_errors('wcas_settings_group'); ?>

@@ -2,7 +2,7 @@
 /**
  * Shortcode Class
  *
- * Registers and renders the [wc_ajax_search] shortcode.
+ * Registers and renders the [findly_ajax_search] shortcode.
  *
  * @package WC_Custom_AJAX_Search
  * @license GPL-2.0-or-later
@@ -20,13 +20,13 @@ class WCAS_Shortcode {
     public static $enqueue_assets = false;
 
     public function __construct() {
-        add_shortcode('wc_ajax_search', array($this, 'render_search'));
+        add_shortcode('findly_ajax_search', array($this, 'render_search'));
     }
     
     /**
      * Render search shortcode
      * 
-     * Usage: [wc_ajax_search]
+     * Usage: [findly_ajax_search]
      * Attributes:
      *   - placeholder: Custom placeholder text
      *   - class: Additional CSS class for wrapper
@@ -38,7 +38,7 @@ class WCAS_Shortcode {
         $atts = shortcode_atts(array(
             'placeholder' => __('Search for your favorite books...', 'findly-ajax-search'),
             'class' => '',
-        ), $atts, 'wc_ajax_search');
+        ), $atts, 'findly_ajax_search');
         
         $settings = WCAS_Settings::get_settings();
         $mobile_icon_only = !empty($settings['mobile_icon_only']);

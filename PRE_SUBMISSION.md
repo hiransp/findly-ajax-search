@@ -16,7 +16,7 @@ Run through this before zipping and submitting:
 - [ ] All user-facing strings use i18n functions with text domain `findly-ajax-search`
 - [ ] Test: activate plugin without WooCommerce — dismissible admin notice appears
 - [ ] Test: activate plugin with WooCommerce — settings page works under WooCommerce menu
-- [ ] Test: shortcode `[wc_ajax_search]` renders search box on frontend
+- [ ] Test: shortcode `[findly_ajax_search]` renders search box on frontend
 - [ ] Test: search returns results and preview panel works
 - [ ] Test: mobile overlay mode works on small screens
 - [ ] Test: uninstall removes all `wcas_` options and transients from `wp_options`
