@@ -1,5 +1,5 @@
-=== Findly AJAX Search for WooCommerce ===
-Contributors: hiran
+=== Findly AJAX Search ===
+Contributors: hiransp
 Tags: woocommerce, search, ajax, product search, live search
 Requires at least: 5.8
 Tested up to: 6.9
@@ -46,7 +46,7 @@ All settings are configurable from the admin panel — no code editing required:
 * Enable/disable search history and no-results suggestions
 * Add ACF custom fields and custom taxonomies to search
 
-The plugin uses CSS custom properties for easy theme integration. Override `--wcas-primary`, `--wcas-bg`, `--wcas-text`, and other variables in your theme stylesheet.
+The plugin uses CSS custom properties for easy theme integration. Override `--findly-primary`, `--findly-bg`, `--findly-text`, and other variables in your theme stylesheet.
 
 = Requirements =
 
@@ -90,10 +90,10 @@ The plugin uses CSS custom properties. Add overrides in your theme's stylesheet:
 
 `
 :root {
-    --wcas-primary: #your-color;
-    --wcas-bg: #fff;
-    --wcas-text: #333;
-    --wcas-border: #ddd;
+    --findly-primary: #your-color;
+    --findly-bg: #fff;
+    --findly-text: #333;
+    --findly-border: #ddd;
 }
 `
 

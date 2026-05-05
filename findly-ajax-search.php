@@ -1,12 +1,12 @@
 <?php
 
 /**
- * Findly — AJAX Search for WooCommerce
+ * Findly AJAX Search
  *
  * @package Findly_AJAX_Search
  * @license GPL-2.0-or-later
  *
- * Plugin Name:       Findly AJAX Search for WooCommerce
+ * Plugin Name:       Findly AJAX Search
  * Plugin URI:        https://github.com/hiransp/findly-ajax-search
  * Description:       Live AJAX product search for WooCommerce with ACF custom fields, custom taxonomies, product preview panel, and full mobile optimization.
  * Version:           1.0.0
@@ -28,21 +28,21 @@ if (!defined('ABSPATH')) {
 }
 
 // Plugin constants
-define('WCAS_VERSION', '1.0.0');
-define('WCAS_PLUGIN_DIR', plugin_dir_path(__FILE__));
-define('WCAS_PLUGIN_URL', plugin_dir_url(__FILE__));
+define('FINDLY_VERSION', '1.0.0');
+define('FINDLY_PLUGIN_DIR', plugin_dir_path(__FILE__));
+define('FINDLY_PLUGIN_URL', plugin_dir_url(__FILE__));
 
 /**
  * Configuration - reads from admin settings, falls back to defaults
  */
-function wcas_get_config()
+function findly_get_config()
 {
     // Load settings class if not already loaded
-    if (!class_exists('WCAS_Settings')) {
-        require_once WCAS_PLUGIN_DIR . 'includes/class-settings.php';
+    if (!class_exists('Findly_Settings')) {
+        require_once FINDLY_PLUGIN_DIR . 'includes/class-settings.php';
     }
 
-    $s = WCAS_Settings::get_settings();
+    $s = Findly_Settings::get_settings();
 
     // Parse comma-separated fields into arrays
     $acf_fields = array_filter(array_map('trim', explode(',', $s['acf_fields'])));
@@ -85,26 +85,26 @@ function wcas_get_config()
 /**
  * Initialize plugin
  */
-function wcas_init()
+function findly_init()
 {
     // Load includes — always load so AJAX handlers are registered
-    require_once WCAS_PLUGIN_DIR . 'includes/class-settings.php';
-    require_once WCAS_PLUGIN_DIR . 'includes/class-search-handler.php';
-    require_once WCAS_PLUGIN_DIR . 'includes/class-shortcode.php';
+    require_once FINDLY_PLUGIN_DIR . 'includes/class-settings.php';
+    require_once FINDLY_PLUGIN_DIR . 'includes/class-search-handler.php';
+    require_once FINDLY_PLUGIN_DIR . 'includes/class-shortcode.php';
 
     // Initialize search handler (registers AJAX hooks)
-    new WCAS_Search_Handler();
+    new Findly_Search_Handler();
 
     // Initialize shortcode
-    new WCAS_Shortcode();
+    new Findly_Shortcode();
 
     // Initialize settings (admin only)
     if (is_admin()) {
-        new WCAS_Settings();
+        new Findly_Settings();
     }
 }
 
-function wcas_check_woocommerce()
+function findly_check_woocommerce()
 {
     if (!class_exists('WooCommerce')) {
         add_action('admin_notices', function () {
@@ -116,116 +116,116 @@ function wcas_check_woocommerce()
 /**
  * Declare WooCommerce HPOS compatibility
  */
-function wcas_declare_hpos_compatibility()
+function findly_declare_hpos_compatibility()
 {
     if (class_exists('\Automattic\WooCommerce\Utilities\FeaturesUtil')) {
         \Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility('custom_order_tables', __FILE__, true);
     }
 }
 
-add_action('plugins_loaded', 'wcas_init');
-add_action('admin_init', 'wcas_check_woocommerce');
-add_action('before_woocommerce_init', 'wcas_declare_hpos_compatibility');
+add_action('plugins_loaded', 'findly_init');
+add_action('admin_init', 'findly_check_woocommerce');
+add_action('before_woocommerce_init', 'findly_declare_hpos_compatibility');
 
 /**
  * Register scripts and styles (does not enqueue yet)
  */
-function wcas_register_assets()
+function findly_register_assets()
 {
     wp_register_style(
-        'wcas-styles',
-        WCAS_PLUGIN_URL . 'assets/css/ajax-search.css',
+        'findly-styles',
+        FINDLY_PLUGIN_URL . 'assets/css/ajax-search.css',
         array(),
-        WCAS_VERSION
+        FINDLY_VERSION
     );
 
     wp_register_script(
-        'wcas-script',
-        WCAS_PLUGIN_URL . 'assets/js/ajax-search.js',
+        'findly-script',
+        FINDLY_PLUGIN_URL . 'assets/js/ajax-search.js',
         array('jquery'),
-        WCAS_VERSION,
+        FINDLY_VERSION,
         true
     );
 }
-add_action('wp_enqueue_scripts', 'wcas_register_assets');
+add_action('wp_enqueue_scripts', 'findly_register_assets');
 
 /**
  * Enqueue assets only on pages where the shortcode is actually used.
  * Runs at wp_footer so the shortcode has already been parsed by then.
  */
-function wcas_maybe_enqueue_assets()
+function findly_maybe_enqueue_assets()
 {
-    if (!class_exists('WCAS_Shortcode') || !WCAS_Shortcode::$enqueue_assets) {
+    if (!class_exists('Findly_Shortcode') || !Findly_Shortcode::$enqueue_assets) {
         return;
     }
 
-    wp_enqueue_style('wcas-styles');
-    wp_enqueue_script('wcas-script');
+    wp_enqueue_style('findly-styles');
+    wp_enqueue_script('findly-script');
 
-    $config = wcas_get_config();
+    $config = findly_get_config();
     if ($config['mobile_icon_only']) {
         $bp = absint($config['mobile_icon_breakpoint']);
         $inline_css = "@media (max-width: {$bp}px) {
-    .wcas-mobile-icon-mode .wcas-mobile-trigger {
+    .findly-mobile-icon-mode .findly-mobile-trigger {
         display: flex;
         align-items: center;
         justify-content: center;
-        width: var(--wcas-touch-target);
-        height: var(--wcas-touch-target);
-        background: var(--wcas-bg);
-        border: 1px solid var(--wcas-border);
-        border-radius: var(--wcas-radius-md);
-        color: var(--wcas-text-light);
+        width: var(--findly-touch-target);
+        height: var(--findly-touch-target);
+        background: var(--findly-bg);
+        border: 1px solid var(--findly-border);
+        border-radius: var(--findly-radius-md);
+        color: var(--findly-text-light);
         cursor: pointer;
         -webkit-tap-highlight-color: transparent;
-        transition: border-color var(--wcas-transition-normal), color var(--wcas-transition-normal);
+        transition: border-color var(--findly-transition-normal), color var(--findly-transition-normal);
     }
-    .wcas-mobile-icon-mode .wcas-mobile-trigger:hover,
-    .wcas-mobile-icon-mode .wcas-mobile-trigger:active {
-        border-color: var(--wcas-primary);
-        color: var(--wcas-primary);
+    .findly-mobile-icon-mode .findly-mobile-trigger:hover,
+    .findly-mobile-icon-mode .findly-mobile-trigger:active {
+        border-color: var(--findly-primary);
+        color: var(--findly-primary);
     }
-    .wcas-mobile-icon-mode .wcas-search-box,
-    .wcas-mobile-icon-mode .wcas-results-wrapper { display: none; }
-    .wcas-mobile-icon-mode.wcas-mobile-search-open .wcas-mobile-overlay {
+    .findly-mobile-icon-mode .findly-search-box,
+    .findly-mobile-icon-mode .findly-results-wrapper { display: none; }
+    .findly-mobile-icon-mode.findly-mobile-search-open .findly-mobile-overlay {
         display: block; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-        background: var(--wcas-overlay); z-index: var(--wcas-z-overlay);
+        background: var(--findly-overlay); z-index: var(--findly-z-overlay);
     }
-    .wcas-mobile-icon-mode.wcas-mobile-search-open .wcas-mobile-trigger { display: none; }
-    .wcas-mobile-icon-mode.wcas-mobile-search-open .wcas-mobile-close {
+    .findly-mobile-icon-mode.findly-mobile-search-open .findly-mobile-trigger { display: none; }
+    .findly-mobile-icon-mode.findly-mobile-search-open .findly-mobile-close {
         display: flex; align-items: center; justify-content: center;
         position: fixed; top: 0; right: 0; width: 56px; height: 56px;
         padding-top: env(safe-area-inset-top, 0);
-        z-index: calc(var(--wcas-z-modal) + 1);
-        background: none; border: none; color: var(--wcas-text-light);
+        z-index: calc(var(--findly-z-modal) + 1);
+        background: none; border: none; color: var(--findly-text-light);
         cursor: pointer; -webkit-tap-highlight-color: transparent;
-        transition: color var(--wcas-transition-fast);
+        transition: color var(--findly-transition-fast);
     }
-    .wcas-mobile-icon-mode.wcas-mobile-search-open .wcas-mobile-close:hover,
-    .wcas-mobile-icon-mode.wcas-mobile-search-open .wcas-mobile-close:active { color: var(--wcas-text); }
-    .wcas-mobile-icon-mode.wcas-mobile-search-open .wcas-search-box {
+    .findly-mobile-icon-mode.findly-mobile-search-open .findly-mobile-close:hover,
+    .findly-mobile-icon-mode.findly-mobile-search-open .findly-mobile-close:active { color: var(--findly-text); }
+    .findly-mobile-icon-mode.findly-mobile-search-open .findly-search-box {
         display: flex; position: fixed; top: 0; left: 0; right: 0;
-        z-index: var(--wcas-z-modal); border-radius: 0; border: none;
-        border-bottom: 1px solid var(--wcas-border); min-height: 56px;
-        padding: 0 56px 0 var(--wcas-spacing-md); background: var(--wcas-bg);
+        z-index: var(--findly-z-modal); border-radius: 0; border: none;
+        border-bottom: 1px solid var(--findly-border); min-height: 56px;
+        padding: 0 56px 0 var(--findly-spacing-md); background: var(--findly-bg);
         padding-top: env(safe-area-inset-top, 0);
     }
-    .wcas-mobile-icon-mode.wcas-mobile-search-open .wcas-results-wrapper {
+    .findly-mobile-icon-mode.findly-mobile-search-open .findly-results-wrapper {
         display: block; position: fixed;
         top: 56px; top: calc(56px + env(safe-area-inset-top, 0));
-        left: 0; right: 0; bottom: 0; z-index: var(--wcas-z-modal);
+        left: 0; right: 0; bottom: 0; z-index: var(--findly-z-modal);
         margin-top: 0; border: none; border-radius: 0; box-shadow: none;
         transform: none; opacity: 1; overflow-y: auto;
     }
-    .wcas-mobile-icon-mode.wcas-mobile-search-open .wcas-results-wrapper .wcas-results-container { max-height: none; }
-    body.wcas-body-overlay-open { overflow: hidden; }
+    .findly-mobile-icon-mode.findly-mobile-search-open .findly-results-wrapper .findly-results-container { max-height: none; }
+    body.findly-body-overlay-open { overflow: hidden; }
 }";
-        wp_add_inline_style('wcas-styles', $inline_css);
+        wp_add_inline_style('findly-styles', $inline_css);
     }
 
-    wp_localize_script('wcas-script', 'wcasConfig', array(
+    wp_localize_script('findly-script', 'findlyConfig', array(
         'ajaxUrl' => admin_url('admin-ajax.php'),
-        'nonce' => wp_create_nonce('wcas_search_nonce'),
+        'nonce' => wp_create_nonce('findly_search_nonce'),
         'minChars' => $config['min_chars'],
         'debounceDelay' => $config['debounce_delay'],
         'enableSearchHistory' => $config['enable_search_history'],
@@ -257,23 +257,23 @@ function wcas_maybe_enqueue_assets()
         ),
     ));
 }
-add_action('wp_footer', 'wcas_maybe_enqueue_assets', 1);
+add_action('wp_footer', 'findly_maybe_enqueue_assets', 1);
 
 /**
  * Plugin activation
  */
-function wcas_activate()
+function findly_activate()
 {
     // Activation tasks if needed
     flush_rewrite_rules();
 }
-register_activation_hook(__FILE__, 'wcas_activate');
+register_activation_hook(__FILE__, 'findly_activate');
 
 /**
  * Plugin deactivation
  */
-function wcas_deactivate()
+function findly_deactivate()
 {
     flush_rewrite_rules();
 }
-register_deactivation_hook(__FILE__, 'wcas_deactivate');
+register_deactivation_hook(__FILE__, 'findly_deactivate');

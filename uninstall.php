@@ -17,12 +17,12 @@ if (!defined('WP_UNINSTALL_PLUGIN')) {
 global $wpdb;
 
 // Delete plugin settings
-delete_option('wcas_settings');
+delete_option('findly_settings');
 
 // Delete all search result cache transients
 // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 $wpdb->query(
     "DELETE FROM {$wpdb->options}
-     WHERE option_name LIKE '_transient_wcas_%'
-     OR option_name LIKE '_transient_timeout_wcas_%'"
+     WHERE option_name LIKE '_transient_findly_%'
+     OR option_name LIKE '_transient_timeout_findly_%'"
 );

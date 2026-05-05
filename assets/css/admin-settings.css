@@ -2,38 +2,38 @@
  * Findly AJAX Search - Admin Settings Styles
  */
 
-.wcas-settings-wrap {
+.findly-settings-wrap {
     max-width: 800px;
 }
 
-.wcas-settings-wrap h2 {
+.findly-settings-wrap h2 {
     margin-top: 30px;
     padding-bottom: 10px;
     border-bottom: 1px solid #ccd0d4;
 }
 
-.wcas-settings-wrap .form-table th {
+.findly-settings-wrap .form-table th {
     width: 200px;
     padding: 15px 10px 15px 0;
 }
 
-.wcas-settings-wrap .form-table td {
+.findly-settings-wrap .form-table td {
     padding: 10px;
 }
 
-.wcas-settings-wrap .form-table label {
+.findly-settings-wrap .form-table label {
     display: inline-flex;
     align-items: center;
     gap: 6px;
 }
 
-.wcas-field-group {
+.findly-field-group {
     display: flex;
     flex-direction: column;
     gap: 10px;
 }
 
-.wcas-sub-field {
+.findly-sub-field {
     margin-left: 24px;
     padding: 10px 15px;
     background: #f9f9f9;
@@ -41,31 +41,31 @@
     border-radius: 0 4px 4px 0;
 }
 
-.wcas-sub-field input.regular-text {
+.findly-sub-field input.regular-text {
     width: 100%;
     max-width: 400px;
 }
 
-.wcas-sub-field .description {
+.findly-sub-field .description {
     margin-top: 5px;
     display: block;
 }
 
-.wcas-hidden {
+.findly-hidden {
     display: none !important;
 }
 
-.wcas-settings-wrap .description {
+.findly-settings-wrap .description {
     color: #666;
     font-style: italic;
 }
 
-.wcas-settings-wrap input[type="number"].small-text {
+.findly-settings-wrap input[type="number"].small-text {
     width: 80px;
 }
 
 /* Shortcode display box */
-.wcas-shortcode-box {
+.findly-shortcode-box {
     display: inline-flex;
     align-items: center;
     gap: 10px;
@@ -76,12 +76,12 @@
     border-radius: 6px;
 }
 
-.wcas-shortcode-label {
+.findly-shortcode-label {
     font-weight: 600;
     color: #1d2327;
 }
 
-.wcas-shortcode-value {
+.findly-shortcode-value {
     font-size: 14px;
     padding: 4px 10px;
     background: #fff;
@@ -91,11 +91,11 @@
     cursor: text;
 }
 
-.wcas-copy-btn {
+.findly-copy-btn {
     cursor: pointer;
 }
 
-.wcas-copy-success {
+.findly-copy-success {
     color: #00a32a;
     font-weight: 500;
     font-size: 13px;
@@ -103,6 +103,6 @@
     transition: opacity 0.2s ease;
 }
 
-.wcas-copy-success.visible {
+.findly-copy-success.visible {
     opacity: 1;
 }

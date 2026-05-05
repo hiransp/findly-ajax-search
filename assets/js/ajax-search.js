@@ -125,7 +125,7 @@
     // ==========================================
     class SearchHistory {
         constructor(maxItems) {
-            this.storageKey = 'wcas_recent_searches';
+            this.storageKey = 'findly_recent_searches';
             this.maxItems = maxItems || 5;
         }
 
@@ -191,18 +191,18 @@
     // ==========================================
     // Main Search Class
     // ==========================================
-    class WCASSearch {
+    class FindlySearch {
         constructor($wrapper) {
             this.$wrapper = $wrapper;
-            this.$input = $wrapper.find('.wcas-search-input');
-            this.$resultsWrapper = $wrapper.find('.wcas-results-wrapper');
-            this.$resultsList = $wrapper.find('.wcas-results-list');
-            this.$previewPanel = $wrapper.find('.wcas-preview-panel');
-            this.$spinner = $wrapper.find('.wcas-spinner');
-            this.$clear = $wrapper.find('.wcas-clear');
-            this.$mobileTrigger = $wrapper.find('.wcas-mobile-trigger');
-            this.$mobileOverlay = $wrapper.find('.wcas-mobile-overlay');
-            this.$mobileClose = $wrapper.find('.wcas-mobile-close');
+            this.$input = $wrapper.find('.findly-search-input');
+            this.$resultsWrapper = $wrapper.find('.findly-results-wrapper');
+            this.$resultsList = $wrapper.find('.findly-results-list');
+            this.$previewPanel = $wrapper.find('.findly-preview-panel');
+            this.$spinner = $wrapper.find('.findly-spinner');
+            this.$clear = $wrapper.find('.findly-clear');
+            this.$mobileTrigger = $wrapper.find('.findly-mobile-trigger');
+            this.$mobileOverlay = $wrapper.find('.findly-mobile-overlay');
+            this.$mobileClose = $wrapper.find('.findly-mobile-close');
 
             this.currentRequest = null;
             this.selectedIndex = -1;
@@ -212,8 +212,8 @@
             this.showingHistory = false;
 
             // Search history
-            this.history = wcasConfig.enableSearchHistory
-                ? new SearchHistory(wcasConfig.maxRecentSearches || 5)
+            this.history = findlyConfig.enableSearchHistory
+                ? new SearchHistory(findlyConfig.maxRecentSearches || 5)
                 : null;
 
             this.init();
@@ -226,7 +226,7 @@
             // Debounced search
             const debouncedSearch = debounce(
                 (term) => this.performSearch(term),
-                wcasConfig.debounceDelay
+                findlyConfig.debounceDelay
             );
 
             // Input events
@@ -244,7 +244,7 @@
                     this.$input.val(term);
                 }
                 
-                if (term.length >= wcasConfig.minChars) {
+                if (term.length >= findlyConfig.minChars) {
                     this.$spinner.addClass('active');
                     this.$clear.removeClass('active');
                     debouncedSearch(term);
@@ -271,7 +271,7 @@
             // Focus events - show history
             this.$input.on('focus', () => {
                 const val = this.$input.val().trim();
-                if (val.length >= wcasConfig.minChars && this.$resultsList.children().length > 0 && !this.showingHistory) {
+                if (val.length >= findlyConfig.minChars && this.$resultsList.children().length > 0 && !this.showingHistory) {
                     this.showResults();
                 } else if (val.length === 0 && this.history) {
                     this.showSearchHistory();
@@ -297,7 +297,7 @@
             $(document).on('click', (e) => {
                 if (!this.$wrapper.is(e.target) && this.$wrapper.has(e.target).length === 0) {
                     this.hideResults();
-                    if (this.isMobileIconMode() && this.$wrapper.hasClass('wcas-mobile-search-open')) {
+                    if (this.isMobileIconMode() && this.$wrapper.hasClass('findly-mobile-search-open')) {
                         this.closeMobileSearch();
                     }
                 }
@@ -313,7 +313,7 @@
             });
 
             // Mobile icon-only mode
-            if (wcasConfig.mobileIconOnly) {
+            if (findlyConfig.mobileIconOnly) {
                 this.$mobileTrigger.on('click touchend', (e) => {
                     e.preventDefault();
                     this.openMobileSearch();
@@ -332,19 +332,19 @@
         }
 
         isMobileIconMode() {
-            return wcasConfig.mobileIconOnly && window.innerWidth <= (wcasConfig.mobileIconBreakpoint || 768);
+            return findlyConfig.mobileIconOnly && window.innerWidth <= (findlyConfig.mobileIconBreakpoint || 768);
         }
 
         openMobileSearch() {
             if (!this.isMobileIconMode()) return;
-            this.$wrapper.addClass('wcas-mobile-search-open');
-            document.body.classList.add('wcas-body-overlay-open');
+            this.$wrapper.addClass('findly-mobile-search-open');
+            document.body.classList.add('findly-body-overlay-open');
             setTimeout(() => this.$input.focus(), 50);
         }
 
         closeMobileSearch() {
-            this.$wrapper.removeClass('wcas-mobile-search-open');
-            document.body.classList.remove('wcas-body-overlay-open');
+            this.$wrapper.removeClass('findly-mobile-search-open');
+            document.body.classList.remove('findly-body-overlay-open');
             this.hideResults();
         }
 
@@ -356,7 +356,7 @@
             this.lastSearchTime = now;
             
             const sanitizedTerm = sanitizeSearchInput(term);
-            if (!sanitizedTerm || sanitizedTerm.length < wcasConfig.minChars) {
+            if (!sanitizedTerm || sanitizedTerm.length < findlyConfig.minChars) {
                 this.$spinner.removeClass('active');
                 return;
             }
@@ -366,11 +366,11 @@
             }
 
             this.currentRequest = $.ajax({
-                url: wcasConfig.ajaxUrl,
+                url: findlyConfig.ajaxUrl,
                 type: 'POST',
                 data: {
-                    action: 'wcas_search',
-                    nonce: wcasConfig.nonce,
+                    action: 'findly_search',
+                    nonce: findlyConfig.nonce,
                     search: sanitizedTerm
                 },
                 success: (response) => {
@@ -408,13 +408,13 @@
             // Render categories
             if (data.categories && data.categories.length > 0) {
                 hasResults = true;
-                this.renderSection('categories', wcasConfig.i18n.categories || 'Categories', data.categories);
+                this.renderSection('categories', findlyConfig.i18n.categories || 'Categories', data.categories);
             }
 
             // Render tags
             if (data.tags && data.tags.length > 0) {
                 hasResults = true;
-                this.renderSection('tags', wcasConfig.i18n.tags || 'Tags', data.tags);
+                this.renderSection('tags', findlyConfig.i18n.tags || 'Tags', data.tags);
             }
 
             // Render custom taxonomies
@@ -436,9 +436,9 @@
             // Render "See all results" link
             if (data.total_count > 0) {
                 const $seeAll = $(`
-                    <div class="wcas-see-all">
+                    <div class="findly-see-all">
                         <a href="${data.search_url}">
-                            ${wcasConfig.i18n.seeAllResults} (${data.total_count})
+                            ${findlyConfig.i18n.seeAllResults} (${data.total_count})
                         </a>
                     </div>
                 `);
@@ -458,7 +458,7 @@
                 // Save successful search to history
                 if (this.history) {
                     const currentTerm = this.$input.val().trim();
-                    if (currentTerm.length >= wcasConfig.minChars) {
+                    if (currentTerm.length >= findlyConfig.minChars) {
                         this.history.add(currentTerm);
                     }
                 }
@@ -472,20 +472,20 @@
 
         renderSection(type, label, items) {
             const $section = $(`
-                <div class="wcas-section wcas-section-${type}">
-                    <div class="wcas-section-header">${label}</div>
-                    <ul class="wcas-section-items"></ul>
+                <div class="findly-section findly-section-${type}">
+                    <div class="findly-section-header">${label}</div>
+                    <ul class="findly-section-items"></ul>
                 </div>
             `);
 
-            const $list = $section.find('.wcas-section-items');
+            const $list = $section.find('.findly-section-items');
 
             items.forEach((item) => {
                 const $item = $(`
-                    <li class="wcas-term-item">
+                    <li class="findly-term-item">
                         <a href="${item.url}">
-                            <span class="wcas-term-name">${item.name}</span>
-                            ${item.count ? `<span class="wcas-term-count">(${item.count})</span>` : ''}
+                            <span class="findly-term-name">${item.name}</span>
+                            ${item.count ? `<span class="findly-term-count">(${item.count})</span>` : ''}
                         </a>
                     </li>
                 `);
@@ -506,32 +506,32 @@
 
         renderProducts(products) {
             const $section = $(`
-                <div class="wcas-section wcas-section-products">
-                    <div class="wcas-section-header">${wcasConfig.i18n.products || 'Products'}</div>
-                    <ul class="wcas-section-items wcas-products-list"></ul>
+                <div class="findly-section findly-section-products">
+                    <div class="findly-section-header">${findlyConfig.i18n.products || 'Products'}</div>
+                    <ul class="findly-section-items findly-products-list"></ul>
                 </div>
             `);
 
-            const $list = $section.find('.wcas-section-items');
+            const $list = $section.find('.findly-section-items');
 
             products.forEach((product, index) => {
                 const matchedField = product.matched_field 
-                    ? `<span class="wcas-matched-field">${product.matched_field.label}: ${product.matched_field.value}</span>` 
+                    ? `<span class="findly-matched-field">${product.matched_field.label}: ${product.matched_field.value}</span>` 
                     : '';
                 
                 const $item = $(`
-                    <li class="wcas-product-item" data-index="${index}">
+                    <li class="findly-product-item" data-index="${index}">
                         <a href="${product.url}">
-                            <span class="wcas-product-thumb">
+                            <span class="findly-product-thumb">
                                 <img src="${product.image}" alt="${product.name_raw}" loading="lazy">
                             </span>
-                            <span class="wcas-product-info">
-                                <span class="wcas-product-name">${product.name}</span>
-                                ${product.sku ? `<span class="wcas-product-sku">(SKU: ${product.sku})</span>` : ''}
+                            <span class="findly-product-info">
+                                <span class="findly-product-name">${product.name}</span>
+                                ${product.sku ? `<span class="findly-product-sku">(SKU: ${product.sku})</span>` : ''}
                                 ${matchedField}
-                                <span class="wcas-product-desc">${product.description}</span>
+                                <span class="findly-product-desc">${product.description}</span>
                             </span>
-                            <span class="wcas-product-price">${product.price}</span>
+                            <span class="findly-product-price">${product.price}</span>
                         </a>
                     </li>
                 `);
@@ -553,29 +553,29 @@
 
         showPreview(product) {
             const stockStatus = product.in_stock 
-                ? `<span class="wcas-in-stock">${wcasConfig.i18n.inStock || 'In Stock'}</span>` 
-                : `<span class="wcas-out-of-stock">${wcasConfig.i18n.outOfStock || 'Out of Stock'}</span>`;
+                ? `<span class="findly-in-stock">${findlyConfig.i18n.inStock || 'In Stock'}</span>` 
+                : `<span class="findly-out-of-stock">${findlyConfig.i18n.outOfStock || 'Out of Stock'}</span>`;
             
             let addToCartBtn = '';
             if (product.is_purchasable && product.in_stock) {
                 if (product.type === 'simple') {
                     addToCartBtn = `
-                        <div class="wcas-preview-cart">
-                            <div class="wcas-qty-wrapper">
-                                <button type="button" class="wcas-qty-btn wcas-qty-minus" aria-label="Decrease quantity">−</button>
-                                <input type="number" class="wcas-qty-input" value="1" min="1" max="99" aria-label="Quantity">
-                                <button type="button" class="wcas-qty-btn wcas-qty-plus" aria-label="Increase quantity">+</button>
+                        <div class="findly-preview-cart">
+                            <div class="findly-qty-wrapper">
+                                <button type="button" class="findly-qty-btn findly-qty-minus" aria-label="Decrease quantity">−</button>
+                                <input type="number" class="findly-qty-input" value="1" min="1" max="99" aria-label="Quantity">
+                                <button type="button" class="findly-qty-btn findly-qty-plus" aria-label="Increase quantity">+</button>
                             </div>
-                            <a href="${product.add_to_cart_url}" class="wcas-add-to-cart button" data-product-id="${product.id}">
-                                ${wcasConfig.i18n.addToCart}
+                            <a href="${product.add_to_cart_url}" class="findly-add-to-cart button" data-product-id="${product.id}">
+                                ${findlyConfig.i18n.addToCart}
                             </a>
                         </div>
                     `;
                 } else {
                     addToCartBtn = `
-                        <div class="wcas-preview-cart">
-                            <a href="${product.url}" class="wcas-view-product button">
-                                ${wcasConfig.i18n.viewProduct || 'View Product'}
+                        <div class="findly-preview-cart">
+                            <a href="${product.url}" class="findly-view-product button">
+                                ${findlyConfig.i18n.viewProduct || 'View Product'}
                             </a>
                         </div>
                     `;
@@ -583,16 +583,16 @@
             }
 
             const previewHtml = `
-                <div class="wcas-preview-content">
-                    <div class="wcas-preview-image">
+                <div class="findly-preview-content">
+                    <div class="findly-preview-image">
                         <img src="${product.image_large}" alt="${product.name_raw}" loading="lazy">
                     </div>
-                    <div class="wcas-preview-details">
-                        <h4 class="wcas-preview-title">${product.name_raw}</h4>
-                        ${product.sku ? `<div class="wcas-preview-sku">${product.sku}</div>` : ''}
-                        <div class="wcas-preview-price">${product.price}</div>
-                        <div class="wcas-preview-description">${product.description_full || product.description}</div>
-                        <div class="wcas-preview-stock">${stockStatus}</div>
+                    <div class="findly-preview-details">
+                        <h4 class="findly-preview-title">${product.name_raw}</h4>
+                        ${product.sku ? `<div class="findly-preview-sku">${product.sku}</div>` : ''}
+                        <div class="findly-preview-price">${product.price}</div>
+                        <div class="findly-preview-description">${product.description_full || product.description}</div>
+                        <div class="findly-preview-stock">${stockStatus}</div>
                         ${addToCartBtn}
                     </div>
                 </div>
@@ -601,24 +601,24 @@
             this.$previewPanel.html(previewHtml);
 
             // Quantity buttons
-            this.$previewPanel.find('.wcas-qty-minus').on('click touchend', function(e) {
+            this.$previewPanel.find('.findly-qty-minus').on('click touchend', function(e) {
                 e.preventDefault();
-                const $input = $(this).siblings('.wcas-qty-input');
+                const $input = $(this).siblings('.findly-qty-input');
                 const val = parseInt($input.val()) || 1;
                 if (val > 1) $input.val(val - 1);
             });
 
-            this.$previewPanel.find('.wcas-qty-plus').on('click touchend', function(e) {
+            this.$previewPanel.find('.findly-qty-plus').on('click touchend', function(e) {
                 e.preventDefault();
-                const $input = $(this).siblings('.wcas-qty-input');
+                const $input = $(this).siblings('.findly-qty-input');
                 const val = parseInt($input.val()) || 1;
                 if (val < 99) $input.val(val + 1);
             });
 
             // AJAX add to cart
-            this.$previewPanel.find('.wcas-add-to-cart').on('click touchend', (e) => {
+            this.$previewPanel.find('.findly-add-to-cart').on('click touchend', (e) => {
                 e.preventDefault();
-                const qty = parseInt(this.$previewPanel.find('.wcas-qty-input').val()) || 1;
+                const qty = parseInt(this.$previewPanel.find('.findly-qty-input').val()) || 1;
                 this.addToCart(product.id, qty, $(e.currentTarget));
             });
         }
@@ -627,11 +627,11 @@
             $button.addClass('loading').prop('disabled', true);
 
             $.ajax({
-                url: wcasConfig.ajaxUrl,
+                url: findlyConfig.ajaxUrl,
                 type: 'POST',
                 data: {
-                    action: 'wcas_add_to_cart',
-                    nonce: wcasConfig.nonce,
+                    action: 'findly_add_to_cart',
+                    nonce: findlyConfig.nonce,
                     product_id: productId,
                     quantity: quantity
                 },
@@ -640,11 +640,11 @@
                         // Trigger WooCommerce event so theme cart widgets update
                         $(document.body).trigger('added_to_cart', [response.fragments, response.cart_hash, $button]);
                         $button.removeClass('loading').addClass('added');
-                        $button.text(wcasConfig.i18n.added || 'Added!');
+                        $button.text(findlyConfig.i18n.added || 'Added!');
 
                         setTimeout(() => {
                             $button.removeClass('added');
-                            $button.text(wcasConfig.i18n.addToCart);
+                            $button.text(findlyConfig.i18n.addToCart);
                         }, 2000);
                     } else {
                         // Error — redirect to product page if provided
@@ -666,39 +666,39 @@
 
         resetPreview() {
             this.$previewPanel.html(`
-                <div class="wcas-preview-placeholder">
-                    <span>${wcasConfig.i18n.hoverPreview || 'Hover over a product to see details'}</span>
+                <div class="findly-preview-placeholder">
+                    <span>${findlyConfig.i18n.hoverPreview || 'Hover over a product to see details'}</span>
                 </div>
             `);
         }
 
         showNoResults(suggestions) {
-            const i18n = wcasConfig.i18n;
+            const i18n = findlyConfig.i18n;
 
-            let html = `<div class="wcas-no-results">${i18n.noResultsTryAgain || i18n.noResults}</div>`;
+            let html = `<div class="findly-no-results">${i18n.noResultsTryAgain || i18n.noResults}</div>`;
 
             // Render suggestions if available
-            if (suggestions && wcasConfig.enableNoResultsSuggestions) {
+            if (suggestions && findlyConfig.enableNoResultsSuggestions) {
                 let suggestionsHtml = '';
 
                 // Popular products
                 if (suggestions.popular_products && suggestions.popular_products.length > 0) {
                     suggestionsHtml += `
-                        <div class="wcas-section wcas-section-suggestions">
-                            <div class="wcas-section-header">${i18n.popularProducts || 'Popular Products'}</div>
-                            <ul class="wcas-section-items wcas-suggestions-products">
+                        <div class="findly-section findly-section-suggestions">
+                            <div class="findly-section-header">${i18n.popularProducts || 'Popular Products'}</div>
+                            <ul class="findly-section-items findly-suggestions-products">
                     `;
                     suggestions.popular_products.forEach((product) => {
                         suggestionsHtml += `
-                            <li class="wcas-product-item wcas-suggestion-item">
+                            <li class="findly-product-item findly-suggestion-item">
                                 <a href="${product.url}">
-                                    <span class="wcas-product-thumb">
+                                    <span class="findly-product-thumb">
                                         <img src="${product.image}" alt="${product.name}" loading="lazy">
                                     </span>
-                                    <span class="wcas-product-info">
-                                        <span class="wcas-product-name">${product.name}</span>
+                                    <span class="findly-product-info">
+                                        <span class="findly-product-name">${product.name}</span>
                                     </span>
-                                    <span class="wcas-product-price">${product.price}</span>
+                                    <span class="findly-product-price">${product.price}</span>
                                 </a>
                             </li>
                         `;
@@ -709,16 +709,16 @@
                 // Top categories
                 if (suggestions.top_categories && suggestions.top_categories.length > 0) {
                     suggestionsHtml += `
-                        <div class="wcas-section wcas-section-suggestions">
-                            <div class="wcas-section-header">${i18n.topCategories || 'Top Categories'}</div>
-                            <ul class="wcas-section-items">
+                        <div class="findly-section findly-section-suggestions">
+                            <div class="findly-section-header">${i18n.topCategories || 'Top Categories'}</div>
+                            <ul class="findly-section-items">
                     `;
                     suggestions.top_categories.forEach((cat) => {
                         suggestionsHtml += `
-                            <li class="wcas-term-item">
+                            <li class="findly-term-item">
                                 <a href="${cat.url}">
-                                    <span class="wcas-term-name">${cat.name}</span>
-                                    <span class="wcas-term-count">(${cat.count})</span>
+                                    <span class="findly-term-name">${cat.name}</span>
+                                    <span class="findly-term-count">(${cat.count})</span>
                                 </a>
                             </li>
                         `;
@@ -738,8 +738,8 @@
 
         showRateLimited() {
             this.$resultsList.html(`
-                <div class="wcas-no-results wcas-rate-limited">
-                    ${wcasConfig.i18n.rateLimited || 'Please slow down and try again.'}
+                <div class="findly-no-results findly-rate-limited">
+                    ${findlyConfig.i18n.rateLimited || 'Please slow down and try again.'}
                 </div>
             `);
             this.resetPreview();
@@ -770,33 +770,33 @@
             this.selectedIndex = -1;
             this.resetPreview();
 
-            const i18n = wcasConfig.i18n;
+            const i18n = findlyConfig.i18n;
 
             const $section = $(`
-                <div class="wcas-section wcas-section-history">
-                    <div class="wcas-section-header wcas-history-header">
+                <div class="findly-section findly-section-history">
+                    <div class="findly-section-header findly-history-header">
                         <span>${i18n.recentSearches || 'Recent Searches'}</span>
-                        <button type="button" class="wcas-history-clear">${i18n.clearHistory || 'Clear all'}</button>
+                        <button type="button" class="findly-history-clear">${i18n.clearHistory || 'Clear all'}</button>
                     </div>
-                    <ul class="wcas-section-items wcas-history-list"></ul>
+                    <ul class="findly-section-items findly-history-list"></ul>
                 </div>
             `);
 
-            const $list = $section.find('.wcas-history-list');
+            const $list = $section.find('.findly-history-list');
 
             searches.forEach((term) => {
                 const escapedTerm = $('<span>').text(term).html();
                 const $item = $(`
-                    <li class="wcas-history-item">
-                        <span class="wcas-history-icon">
+                    <li class="findly-history-item">
+                        <span class="findly-history-icon">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
                                 <path d="M3 3v5h5"/>
                                 <path d="M12 7v5l4 2"/>
                             </svg>
                         </span>
-                        <span class="wcas-history-term">${escapedTerm}</span>
-                        <button type="button" class="wcas-history-remove" data-term="${escapedTerm}" title="Remove">
+                        <span class="findly-history-term">${escapedTerm}</span>
+                        <button type="button" class="findly-history-remove" data-term="${escapedTerm}" title="Remove">
                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
                             </svg>
@@ -805,7 +805,7 @@
                 `);
 
                 // Click on term to search
-                $item.find('.wcas-history-term, .wcas-history-icon').on('click', () => {
+                $item.find('.findly-history-term, .findly-history-icon').on('click', () => {
                     this.$input.val(term);
                     this.showingHistory = false;
                     this.$clear.addClass('active');
@@ -814,7 +814,7 @@
                 });
 
                 // Remove single item
-                $item.find('.wcas-history-remove').on('click', (e) => {
+                $item.find('.findly-history-remove').on('click', (e) => {
                     e.stopPropagation();
                     this.history.remove(term);
                     $item.slideUp(150, () => {
@@ -830,7 +830,7 @@
             });
 
             // Clear all
-            $section.find('.wcas-history-clear').on('click', () => {
+            $section.find('.findly-history-clear').on('click', () => {
                 this.history.clear();
                 this.hideResults();
             });
@@ -844,7 +844,7 @@
          * Includes: history items, taxonomy term items, product items, and "see all" link.
          */
         getNavigableItems() {
-            return this.$resultsList.find('.wcas-history-item, .wcas-term-item, .wcas-product-item, .wcas-see-all');
+            return this.$resultsList.find('.findly-history-item, .findly-term-item, .findly-product-item, .findly-see-all');
         }
 
         handleKeyboard(e) {
@@ -886,7 +886,7 @@
             const $selected = $items.eq(this.selectedIndex);
 
             // If it's a product item, show preview
-            if ($selected.hasClass('wcas-product-item')) {
+            if ($selected.hasClass('findly-product-item')) {
                 const productIndex = $selected.data('index');
                 if (this.products[productIndex]) {
                     this.showPreview(this.products[productIndex]);
@@ -902,8 +902,8 @@
                 const $selected = $items.eq(this.selectedIndex);
 
                 // History item — fill input and search
-                if ($selected.hasClass('wcas-history-item')) {
-                    const term = $selected.find('.wcas-history-term').text();
+                if ($selected.hasClass('findly-history-item')) {
+                    const term = $selected.find('.findly-history-term').text();
                     this.$input.val(term);
                     this.showingHistory = false;
                     this.$clear.addClass('active');
@@ -913,7 +913,7 @@
                 }
 
                 // See-all link
-                if ($selected.hasClass('wcas-see-all')) {
+                if ($selected.hasClass('findly-see-all')) {
                     const href = $selected.find('a').attr('href');
                     if (href) {
                         window.location.href = href;
@@ -928,7 +928,7 @@
                 }
             } else {
                 // No selection — go to "See all results" if available
-                const $seeAll = this.$resultsList.find('.wcas-see-all a');
+                const $seeAll = this.$resultsList.find('.findly-see-all a');
                 if ($seeAll.length) {
                     window.location.href = $seeAll.attr('href');
                 }
@@ -965,8 +965,8 @@
     // Initialize
     // ==========================================
     $(document).ready(function() {
-        $('.wcas-wrapper').each(function() {
-            new WCASSearch($(this));
+        $('.findly-wrapper').each(function() {
+            new FindlySearch($(this));
         });
     });
 

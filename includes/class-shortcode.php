@@ -12,7 +12,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-class WCAS_Shortcode {
+class Findly_Shortcode {
 
     /**
      * Flag: shortcode was used on the current page
@@ -40,12 +40,12 @@ class WCAS_Shortcode {
             'class' => '',
         ), $atts, 'findly_ajax_search');
         
-        $settings = WCAS_Settings::get_settings();
+        $settings = Findly_Settings::get_settings();
         $mobile_icon_only = !empty($settings['mobile_icon_only']);
 
-        $wrapper_class = 'wcas-wrapper';
+        $wrapper_class = 'findly-wrapper';
         if ($mobile_icon_only) {
-            $wrapper_class .= ' wcas-mobile-icon-mode';
+            $wrapper_class .= ' findly-mobile-icon-mode';
         }
         if (!empty($atts['class'])) {
             $wrapper_class .= ' ' . esc_attr($atts['class']);
@@ -54,21 +54,21 @@ class WCAS_Shortcode {
         ob_start();
         ?>
         <div class="<?php echo esc_attr($wrapper_class); ?>">
-            <button type="button" class="wcas-mobile-trigger" aria-label="<?php esc_attr_e('Open search', 'findly-ajax-search'); ?>">
+            <button type="button" class="findly-mobile-trigger" aria-label="<?php esc_attr_e('Open search', 'findly-ajax-search'); ?>">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="11" cy="11" r="8"></circle>
                     <path d="m21 21-4.35-4.35"></path>
                 </svg>
             </button>
-            <div class="wcas-mobile-overlay"></div>
-            <div class="wcas-mobile-close" aria-label="<?php esc_attr_e('Close search', 'findly-ajax-search'); ?>">
+            <div class="findly-mobile-overlay"></div>
+            <div class="findly-mobile-close" aria-label="<?php esc_attr_e('Close search', 'findly-ajax-search'); ?>">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M18 6 6 18"></path>
                     <path d="m6 6 12 12"></path>
                 </svg>
             </div>
-            <div class="wcas-search-box">
-                <span class="wcas-search-icon">
+            <div class="findly-search-box">
+                <span class="findly-search-icon">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <circle cx="11" cy="11" r="8"></circle>
                         <path d="m21 21-4.35-4.35"></path>
@@ -76,17 +76,17 @@ class WCAS_Shortcode {
                 </span>
                 <input 
                     type="text" 
-                    class="wcas-search-input" 
+                    class="findly-search-input" 
                     placeholder="<?php echo esc_attr($atts['placeholder']); ?>"
                     autocomplete="off"
                     aria-label="<?php echo esc_attr($atts['placeholder']); ?>"
                 >
-                <span class="wcas-spinner">
+                <span class="findly-spinner">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M21 12a9 9 0 1 1-6.219-8.56"></path>
                     </svg>
                 </span>
-                <span class="wcas-clear" title="<?php esc_attr_e('Clear', 'findly-ajax-search'); ?>">
+                <span class="findly-clear" title="<?php esc_attr_e('Clear', 'findly-ajax-search'); ?>">
                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M18 6 6 18"></path>
                         <path d="m6 6 12 12"></path>
@@ -94,14 +94,14 @@ class WCAS_Shortcode {
                 </span>
             </div>
             
-            <div class="wcas-results-wrapper">
-                <div class="wcas-results-container">
-                    <div class="wcas-results-list">
+            <div class="findly-results-wrapper">
+                <div class="findly-results-container">
+                    <div class="findly-results-list">
                         <!-- Results will be populated via JS -->
                     </div>
-                    <div class="wcas-preview-panel">
+                    <div class="findly-preview-panel">
                         <!-- Product preview will be shown here -->
-                        <div class="wcas-preview-placeholder">
+                        <div class="findly-preview-placeholder">
                             <span><?php esc_html_e('Hover over a product to see details', 'findly-ajax-search'); ?></span>
                         </div>
                     </div>

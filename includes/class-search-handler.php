@@ -14,7 +14,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-class WCAS_Search_Handler {
+class Findly_Search_Handler {
     
     private $config;
     
@@ -35,13 +35,13 @@ class WCAS_Search_Handler {
     const CACHE_TTL = 60;
     
     public function __construct() {
-        $this->config = wcas_get_config();
+        $this->config = findly_get_config();
 
         // Register AJAX handlers
-        add_action('wp_ajax_wcas_search', array($this, 'handle_search'));
-        add_action('wp_ajax_nopriv_wcas_search', array($this, 'handle_search'));
-        add_action('wp_ajax_wcas_add_to_cart', array($this, 'handle_add_to_cart'));
-        add_action('wp_ajax_nopriv_wcas_add_to_cart', array($this, 'handle_add_to_cart'));
+        add_action('wp_ajax_findly_search', array($this, 'handle_search'));
+        add_action('wp_ajax_nopriv_findly_search', array($this, 'handle_search'));
+        add_action('wp_ajax_findly_add_to_cart', array($this, 'handle_add_to_cart'));
+        add_action('wp_ajax_nopriv_findly_add_to_cart', array($this, 'handle_add_to_cart'));
 
         // Invalidate search cache when products change
         add_action('woocommerce_update_product', array($this, 'flush_search_cache'));
@@ -72,8 +72,8 @@ class WCAS_Search_Handler {
         // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
         $wpdb->query(
             "DELETE FROM {$wpdb->options}
-             WHERE option_name LIKE '_transient_wcas_r_%'
-             OR option_name LIKE '_transient_timeout_wcas_r_%'"
+             WHERE option_name LIKE '_transient_findly_r_%'
+             OR option_name LIKE '_transient_timeout_findly_r_%'"
         );
     }
 
@@ -91,7 +91,7 @@ class WCAS_Search_Handler {
         $this->set_security_headers();
 
         // 1. Verify nonce (CSRF protection)
-        if (!isset($_POST['nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'wcas_search_nonce')) {
+        if (!isset($_POST['nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'findly_search_nonce')) {
             wp_send_json_error(array('message' => 'Security check failed'), 403);
             exit;
         }
@@ -125,7 +125,7 @@ class WCAS_Search_Handler {
         }
         
         // 5. Check cache first
-        $cache_key = 'wcas_r_' . md5($search_term . WCAS_VERSION);
+        $cache_key = 'findly_r_' . md5($search_term . FINDLY_VERSION);
         $cached = get_transient($cache_key);
 
         if ($cached !== false) {
@@ -267,8 +267,8 @@ class WCAS_Search_Handler {
         global $wpdb;
 
         $ip = $this->get_client_ip();
-        $transient_key = '_transient_wcas_rate_' . md5($ip);
-        $timeout_key = '_transient_timeout_wcas_rate_' . md5($ip);
+        $transient_key = '_transient_findly_rate_' . md5($ip);
+        $timeout_key = '_transient_timeout_findly_rate_' . md5($ip);
         $now = time();
 
         // Atomic: try to increment if the transient exists and hasn't expired
@@ -298,8 +298,8 @@ class WCAS_Search_Handler {
 
         // No existing transient or it expired — create fresh via WordPress API
         // Delete stale entries first
-        delete_transient('wcas_rate_' . md5($ip));
-        set_transient('wcas_rate_' . md5($ip), 1, self::RATE_LIMIT_WINDOW);
+        delete_transient('findly_rate_' . md5($ip));
+        set_transient('findly_rate_' . md5($ip), 1, self::RATE_LIMIT_WINDOW);
         return false;
     }
     
@@ -359,8 +359,8 @@ class WCAS_Search_Handler {
         ));
 
         // Increment rolling counter for admin visibility
-        $count = (int) get_transient('wcas_suspicious_count');
-        set_transient('wcas_suspicious_count', $count + 1, DAY_IN_SECONDS);
+        $count = (int) get_transient('findly_suspicious_count');
+        set_transient('findly_suspicious_count', $count + 1, DAY_IN_SECONDS);
     }
     
     /**
@@ -876,7 +876,7 @@ class WCAS_Search_Handler {
      * Handle AJAX add to cart
      */
     public function handle_add_to_cart() {
-        check_ajax_referer('wcas_search_nonce', 'nonce');
+        check_ajax_referer('findly_search_nonce', 'nonce');
 
         $product_id = isset( $_POST['product_id'] ) ? absint( wp_unslash( $_POST['product_id'] ) ) : 0;
         $quantity   = isset( $_POST['quantity'] ) ? max( 1, absint( wp_unslash( $_POST['quantity'] ) ) ) : 1;
