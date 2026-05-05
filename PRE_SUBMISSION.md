@@ -4,7 +4,7 @@
 
 Run through this before zipping and submitting:
 
-- [ ] Version in plugin header matches `WCAS_VERSION` constant (both `1.0.0`)
+- [ ] Version in plugin header matches `FINDLY_VERSION` constant (both `1.0.0`)
 - [ ] `readme.txt` `Stable tag` matches the version (`1.0.0`)
 - [ ] All `index.php` files present (root, includes/, assets/, assets/css/, assets/js/, languages/)
 - [ ] `languages/findly-ajax-search.pot` file exists and is up to date
@@ -19,7 +19,7 @@ Run through this before zipping and submitting:
 - [ ] Test: shortcode `[findly_ajax_search]` renders search box on frontend
 - [ ] Test: search returns results and preview panel works
 - [ ] Test: mobile overlay mode works on small screens
-- [ ] Test: uninstall removes all `wcas_` options and transients from `wp_options`
+- [ ] Test: uninstall removes all `findly_` options and transients from `wp_options`
 
 ## Creating the Submission ZIP
 

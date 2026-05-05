@@ -1,4 +1,4 @@
-# WC Custom AJAX Search
+# Findly AJAX Search
 
 A fast, live AJAX product search plugin for WooCommerce with ACF custom fields, custom taxonomies, product preview panel, and full mobile optimization.
 
@@ -18,7 +18,7 @@ A fast, live AJAX product search plugin for WooCommerce with ACF custom fields, 
 
 ## Installation
 
-1. Upload the `wc-custom-ajax-search` folder to `/wp-content/plugins/`
+1. Upload the `findly-ajax-search` folder to `/wp-content/plugins/`
 2. Activate the plugin in WordPress
 3. Go to **WooCommerce > AJAX Search** to configure settings
 4. Add `[findly_ajax_search]` to any page or post
@@ -37,10 +37,10 @@ Override CSS custom properties in your theme:
 
 ```css
 :root {
-    --wcas-primary: #your-brand-color;
-    --wcas-bg: #fff;
-    --wcas-text: #333;
-    --wcas-border: #ddd;
+    --findly-primary: #your-brand-color;
+    --findly-bg: #fff;
+    --findly-text: #333;
+    --findly-border: #ddd;
 }
 ```
 
